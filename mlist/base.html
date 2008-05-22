@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>{{ title|striptags|escape }}</title>
+
+  <!-- Framework CSS -->
+	<link rel="stylesheet" href="/css/reset.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="/css/typography.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="/css/fancy-type.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="/css/print.css" type="text/css" media="print">
+  <!--[if IE]><link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+
+</head>
+
+<body>
+
+	<div style="border-bottom:30px solid #FFFFFF;">
+		<div style="border-bottom:1px solid #C9D7F1; height: 22px;"> 
+			<div style="float:left; height: 22px; padding-left:10px; padding-top:1px; padding-bottom:1px; font-size:13px;">
+				<nobr>
+					{% for menu in left_menus %}
+						<span style="margin-right:10px;">
+							{% if menu.url %}
+								<a href="{{ menu.url }}">{{ menu.name|escape }}</a>
+							{% else %}
+								<b>{{ menu.name|escape }}</b>
+							{% endif %}
+						</span>
+					{% endfor %}
+				</nobr>
+			</div>
+			<div style="float:right; height: 22px; padding-right:10px; padding-top:1px; padding-bottom:1px; font-size:13px;">
+				<nobr>
+					{% for menu in right_menus %}
+						<span style="margin-right:10px;">
+							{% if menu.url %}
+								<a href="{{ menu.url }}">{{ menu.name|escape }}</a>
+							{% else %}
+								<b>{{ menu.name|escape }}</b>
+							{% endif %}
+						</span>
+					{% endfor %}
+				</nobr>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container" style="width:80%;margin:0 auto;">  
+		{% for warning in warnings %}
+			<div class="notice">{{ warning }}</div>
+		{% endfor %}
+		{% for error in errors %}
+			<div class="error">{{ error }}</div>
+		{% endfor %}
+		{% for info in infos %}
+			<div class="success">{{ info }}</div>
+		{% endfor %}
+		{% if infos or errors or warnings %}
+			<div style="margin-bottom:40px;"></div>
+		{% endif %}
+		
+		{% block content %}{% endblock %}
+	</div>
+
+</body>
+</html>

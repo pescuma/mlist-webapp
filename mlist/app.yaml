@@ -1,0 +1,19 @@
+application: mlist
+version: 2
+runtime: python
+api_version: 1
+
+handlers:
+
+- url: /css
+  static_dir: css
+
+- url: /icons
+  static_dir: icons
+
+- url: /favicon.ico
+  static_files: icons/favicon.ico
+  upload: icons/favicon.ico
+     
+- url: .*
+  script: mlist.py

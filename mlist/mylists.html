@@ -1,0 +1,27 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+	<h1>Minhas Listas</h1>
+	<hr>
+	<br>
+
+	{% if mlists %}
+		<ul class="large">
+			{% for mlist in mlists %}
+				<li>
+					<a href="/{{ mlist.id }}">{{ mlist.title|wikiSL }}</a> <span class="alt">( criada em {{ mlist.dateCreated|date:"d/m/Y g:i a" }} )</span>
+					
+					<span style="margin-left:40px;"> 
+						<form method="post" style="display: inline"><input type="hidden" name="delete" value="{{ mlist.id }}"><input type="image" src="/icons/delete.png" /></form> 
+					</span>
+				</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<h2 class="alt">Você não criou nenhuma lista ainda. Clique em New na barra superior para criar uma.</h2>
+	{% endif %}
+	
+{% endblock %}
+
+

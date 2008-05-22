@@ -1,0 +1,32 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+	<table>
+		<tr>
+			<td>
+				<form action="" method="post" style="margin-bottom:20px">
+				<h1><input type="text" name="title" id="title" value="{{ mlist.title|escape }}" style="font-size: 1em; width: 100%" /></h1>
+				<hr>
+				<br>
+				<h2 class="alt"><textarea name="description" id="description" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ mlist.description|escape }}</textarea></h2>
+			
+				<span class="large">
+					Adicionar itens na lista (um por linha):<br>
+					<textarea name="items" id="items" rows="5" cols="40" style="font-size: 1em; width: 100%">{{ f_items|escape }}</textarea>
+				</span>
+			
+				<input type="hidden" name="edit" value="1">
+				<input type="submit" value="Salvar" />
+				</form>
+				
+				{% include "items.html" %}
+				
+			</td>
+			<td style="width:200px; vertical-align:top;">
+				{% include "wikisyntax.html" %}
+			</td>
+		</tr>
+	</table>
+	
+{% endblock %}

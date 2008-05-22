@@ -1,0 +1,37 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+	<table>
+		<tr>
+			<td>
+				<form action="" method="post" style="margin-bottom:60px">
+				<h1>Nome da lista: <input type="text" name="title" id="title" value="{{ f_title|escape }}" style="font-size: 1em;" /></h1>
+				<hr>
+				<br>
+				<h2 class="alt">Descrição da lista:<br><textarea name="description" id="description" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ f_description|escape }}</textarea></h2>
+				
+				<span class="large">
+					Itens da lista (um por linha):<br>
+					<textarea name="items" id="items" rows="20" cols="40" style="font-size: 1em; width: 100%">{{ f_items|escape }}</textarea>
+					
+					{% if captcha %}
+						<br />
+						<br />
+						Para garantir que você não é um bot, por favor responda o captcha: <i>(usuários logados não precisam fazer isso)</i><br />
+						{{ captcha }}
+						<br />
+						<br />
+					{% endif %}
+				</span>
+				
+				<input type="submit" value="Salvar" />
+				</form>
+			</td>
+			<td style="width:200px; vertical-align:top;">
+				{% include "wikisyntax.html" %}
+			</td>
+		</tr>
+	</table>
+
+{% endblock %}
