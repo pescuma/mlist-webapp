@@ -11,6 +11,12 @@ import os
 import wsgiref.handlers
 from recaptcha.client import captcha
 import wikisyntax
+from trans import *
+
+
+_DEBUG = True
+_DEBUG_TRANSLATION = False
+
 
 
 # Model #######################################################################
@@ -22,12 +28,18 @@ class MList(db.Model):
 	description = db.TextProperty()
 	author = db.UserProperty()
 	dateCreated = db.DateTimeProperty(auto_now_add=True)
-
+	private = db.BooleanProperty()
+	
+	def __items(self):
+		return list(self.item_set.order('order'))
+	
+	items = property(fget=__items)
+	
+	
 	def load(id):
-		mlist = db.get(db.Key(id))
-		mlist.items = mlist.item_set.order('dateCreated')
-		return mlist
+		return db.get(db.Key(id))
 	load = staticmethod(load)
+	
 	
 	def id(self):
 		return str(self.key())
@@ -50,24 +62,25 @@ class MList(db.Model):
 
 class Item(db.Model):
 	text = db.StringProperty(multiline=False)
-	dateCreated = db.DateTimeProperty(auto_now_add=True)
 	bought = db.IntegerProperty(default=0)
 	boughtBy = db.UserProperty()
 	boughtDate = db.DateTimeProperty(auto_now_add=False)
 	mlist = db.Reference(MList)
+	order = db.IntegerProperty()
 	
 	def id(self):
 		return str(self.key())
 	
 	def boughtDisplayableNick(self):
 		if not self.boughtBy:
-			return 'Anonimo'
+			return t('Anonimo')
 		
 		nick = self.boughtBy.nickname()
 		pos = nick.rfind('@')
 		if pos >= 0:
 		  nick = nick[:pos] + '@...'
 		return nick
+
 
 
 
@@ -94,7 +107,7 @@ class BasePage(webapp.RequestHandler):
 	
 	def _initData(self):
 		title = 'mlist'
-		self.left_menus = [ Menu('New', '/new') ]
+		self.left_menus = [ Menu(t('New'), '/new') ]
 		self.right_menus = []
 		self.warnings = []
 		self.errors = []
@@ -102,6 +115,21 @@ class BasePage(webapp.RequestHandler):
 		
 		if users.get_current_user():
 			self.right_menus.append(Menu(users.get_current_user().email()))
+		
+		setLanguage(self._getAcceptedLanguages())
+		
+
+	def _getAcceptedLanguages(self):
+		accept = os.environ['HTTP_ACCEPT_LANGUAGE']
+		pos = accept.find(';')
+		if pos >= 0:
+			accept = accept[0:pos]
+		langs = []
+		for l in accept.split(','):
+			l = l.strip(' \t\r\n')
+			if l:
+				langs.append(l)
+		return langs
 	
 	def get(self):
 		self._initData()
@@ -109,7 +137,7 @@ class BasePage(webapp.RequestHandler):
 	def post(self):
 		self._initData()
 		
-	def error(self, error):
+	def err(self, error):
 		self.errors.append(error)
 		
 	def warn(self, warn):
@@ -122,12 +150,13 @@ class BasePage(webapp.RequestHandler):
 		return self.request.get(fieldName).strip(' \t\r\n')
 	
 	def render(self, html, **keywords):
-		self.right_menus.append(Menu('About', '/about'))
 		if users.get_current_user():
-			self.left_menus.append(Menu('My lists', '/mylists'))
-			self.right_menus.append(Menu('Log out', users.create_logout_url(self.request.uri)))
+			self.left_menus.append(Menu(t('My lists'), '/mylists'))
+			self.right_menus.append(Menu(t('Log out'), users.create_logout_url(self.request.uri)))
 		else:
-			self.right_menus.append(Menu('Log in', users.create_login_url(self.request.uri)))
+			self.right_menus.append(Menu(t('Log in'), users.create_login_url(self.request.uri)))
+		self.right_menus.append(Menu(t('About'), '/about'))
+		self.right_menus.append(Menu(t('Bugs?'), 'http://code.google.com/p/mlist-webapp/issues/list'))
 			
 		template_values = {
 		  'title' : self.title,
@@ -142,6 +171,10 @@ class BasePage(webapp.RequestHandler):
 		keys = keywords.keys()
 		for kw in keys:
 			template_values[kw] = keywords[kw]
+			
+		if _DEBUG_TRANSLATION:
+			template.render(html, template_values)
+			template_values['trans_notfound'] = trans_notfound
 		
 		self.response.out.write(template.render(html, template_values))
 
@@ -155,12 +188,20 @@ class BaseListPage(BasePage):
 		return items
 
 	def addItems(self, mlist, in_items):
+		first = 0
+		for item in mlist.items:
+			if item.order >= first:
+				first = item.order + 1
+				
 		for text in in_items:
 			item = Item()
 			item.text = text
 			item.bought = 0
-			item.mlist = mlist;
+			item.mlist = mlist
+			item.order = first
 			item.put()
+			
+			first += 1
 	
 
 class MainPage(BasePage):
@@ -181,10 +222,10 @@ class AboutPage(BasePage):
 
 class MyListsPage(BasePage):
 	def show(self):
-		self.title = 'My Lists :: mlist'
+		self.title = t('My Lists') + ' :: mlist'
 		
 		if not users.get_current_user():
-			self.error('Apenas usuários logados podem ver suas listas')
+			self.err(t('Apenas usuários logados podem ver suas listas'))
 			lists = []
 		else:
 			lists = MList.gql('WHERE author = :1 ORDER BY dateCreated DESC', users.get_current_user())
@@ -210,21 +251,21 @@ class MyListsPage(BasePage):
 			if mlist.isAuthor:
 				mlist.delete()
 			else:
-				self.error('Apenas o criador de uma lista pode apagá-la')
+				self.err(t('Apenas o criador de uma lista pode apagá-la'))
 		
 		self.show()
 		
 
 class NewList(BaseListPage):
 	def createMenus(self):
-		self.title = 'Nova lista :: mlist'
+		self.title = t('Nova lista') + ' :: mlist'
 		
-		self.left_menus = [ Menu('Cancel', '/') ]
+		self.left_menus = [ Menu(t('Cancel'), '/') ]
 		
 		if not users.get_current_user():
-			self.warn(cgi.escape('Você não está logado. As listas criadas não poderão ' + \
-						'ser editadas. Você tem certeza que não deseja ') + '<a href="' + \
-						users.create_login_url(self.request.uri) + '">logar-se</a>?')
+			self.warn(cgi.escape(t('Você não está logado. As listas criadas não poderão ' + \
+						'ser editadas. Você tem certeza que não deseja')) + ' <a href="' + \
+						users.create_login_url(self.request.uri) + '">' + cgi.escape(t('logar-se')) + '</a>?') 
 		
 	def get(self):
 		BasePage.get(self)
@@ -247,19 +288,24 @@ class NewList(BaseListPage):
 		mlist.title = self.form('title')[:500]
 		mlist.description = self.form('description')
 		
+		if self.form('private'):
+			mlist.private = True
+		else: 
+			mlist.private = False
+		
 		in_items = self.getItemNames(self.form('items'))
 		
 		if len(mlist.title) <= 0:
-			self.error('O título não pode estar em branco')
+			self.err(t('O Nome da lista não pode estar em branco'))
 		if len(in_items) <= 0:
-			self.error('A lista de itens não pode estar em branco')
+			self.err(t('A lista de itens não pode estar em branco'))
 		
 		captchaError = None
 		if not users.get_current_user():
 			response = captcha.submit(self.form('recaptcha_challenge_field'), self.form('recaptcha_response_field'), \
 									'6LcG6QEAAAAAALXl-GCqPWdTYKgvhZGIYtC3vLLW', os.environ['REMOTE_ADDR'])
 			if not response.is_valid:
-				self.error('O captcha ao final da página deve ser preenchido (Usuários logados não precisam fazer isso)')
+				self.err(t('O captcha ao final da página deve ser preenchido (Usuários logados não precisam fazer isso)'))
 				captchaError = response.error_code 
 		
 		if len(self.errors) > 0:
@@ -272,7 +318,7 @@ class NewList(BaseListPage):
 			for item in in_items:
 				items = items + item + '\n'
 			
-			self.render('new.html', f_title=mlist.title, f_description=mlist.description, f_items=items, captcha=captchaHTML)
+			self.render('new.html', f_title=mlist.title, f_description=mlist.description, f_items=items, captcha=captchaHTML, f_private=mlist.private)
 			return
 		
 		mlist.author = users.get_current_user()
@@ -291,10 +337,8 @@ class ViewList(BaseListPage):
 	def load(self):
 		mlist = MList.load(self.getId())
 		
-		if not mlist:
-			self.title = 'Erro :: mlist'
-			self.error('Esta lista não existe')
-			self.render('error.html')
+		if mlist and not mlist.isAuthor() and mlist.private:
+			mlist = None
 		
 		return mlist
 	
@@ -304,8 +348,8 @@ class ViewList(BaseListPage):
 #						'poderá desfazer isso depois. Você tem certeza que não deseja ') + '<a href="' + \
 #						users.create_login_url(self.request.uri) + '">logar-se</a>?')
 		
-		if mlist.isAuthor():
-			self.left_menus.insert(0, Menu('Edit', '/edit/' + mlist.id()))
+		if mlist and mlist.isAuthor():
+			self.left_menus.insert(0, Menu(t('Edit'), '/edit/' + mlist.id()))
 		
 		self.title = wikisyntax.toHTML(mlist.title, True) + ' :: mlist'
 		self.render('view.html', mlist=mlist)
@@ -315,6 +359,7 @@ class ViewList(BaseListPage):
 		
 		mlist = self.load()
 		if not mlist:
+			self.error(404)
 			return
 		
 		self.show(mlist)
@@ -348,7 +393,7 @@ class ViewList(BaseListPage):
 		item = mlist.getItemById(self.form('unbought'))
 		if item and item.bought != 0:
 			if not self.canUnbuy(mlist, item):
-				self.error("Você não pode desmarcar este ítem, pois ele foi comprado por outra pessoa")
+				self.err(t("Você não pode desmarcar este ítem, pois ele foi comprado por outra pessoa"))
 			else:
 				item.bought = 0
 				item.boughtBy = None
@@ -358,7 +403,7 @@ class ViewList(BaseListPage):
 		item = mlist.getItemById(self.form('delete'))
 		if item:
 			if not self.canDelete(mlist, item):
-				self.error("Apenas o criador da lista pode apagar itens")
+				self.err(t("Apenas o criador da lista pode apagar itens"))
 			else:
 				item.delete()
 	
@@ -367,6 +412,7 @@ class ViewList(BaseListPage):
 		
 		mlist = self.load()
 		if not mlist:
+			self.error(404)
 			return
 		
 		self.handlePublicChanges(mlist)
@@ -384,8 +430,8 @@ class EditList(ViewList):
 			ViewList.show(self, mlist)
 			return
 		
-		self.left_menus.insert(0, Menu('Cancel', '/' + mlist.id()))
-		self.title = 'Editando ' + wikisyntax.toHTML(mlist.title, False) + ' :: mlist'
+		self.left_menus.insert(0, Menu(t('Cancel'), '/' + mlist.id()))
+		self.title = t('Editando') + ' ' + wikisyntax.toHTML(mlist.title, False) + ' :: mlist'
 		self.render('edit.html', mlist=mlist)
 	
 	def post(self):
@@ -393,6 +439,7 @@ class EditList(ViewList):
 		
 		mlist = self.load()
 		if not mlist:
+			self.error(404)
 			return
 		
 		self.handlePublicChanges(mlist)
@@ -403,11 +450,16 @@ class EditList(ViewList):
 		
 		title = self.form('title')[:500]
 		if len(title) <= 0:
-			self.error('O título não pode estar em branco')
+			self.err(t('O título não pode estar em branco'))
 		else:
 			mlist.title = self.form('title')
 		
 		mlist.description = self.form('description')
+		
+		if self.form('private'):
+			mlist.private = True
+		else: 
+			mlist.private = False
 		
 		mlist.put()
 		
@@ -423,14 +475,13 @@ application = webapp.WSGIApplication([
   ('/new', NewList),
   ('/edit/.+', EditList),
   ('/.+', ViewList),
-], debug=True)
+], debug=_DEBUG)
+
+webapp.template.register_template_library('templatefilters')
 
 
 def main():
 	wsgiref.handlers.CGIHandler().run(application)
-
-
-webapp.template.register_template_library('templatefilters')
 
 if __name__ == '__main__':
 	main()

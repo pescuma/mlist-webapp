@@ -50,6 +50,13 @@
 	</div>
 	
 	<div class="container" style="width:80%;margin:0 auto;">  
+		{% if trans_notfound %}
+			<div class="error">Translation errors:<br>
+			{% for nf in trans_notfound %}
+				{{ nf|escape }} <br>
+			{% endfor %}
+			</div>
+		{% endif %}
 		{% for warning in warnings %}
 			<div class="notice">{{ warning }}</div>
 		{% endfor %}

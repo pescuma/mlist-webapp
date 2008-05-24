@@ -10,20 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 3 times in query history.
+# Used once in query history.
 - kind: Item
   properties:
   - name: mlist
-  - name: dateCreated
+  - name: order
 
-# Used 8 times in query history.
-- kind: MList
-  properties:
-  - name: author
-  - name: date
-    direction: desc
-
-# Used 39 times in query history.
+# Used once in query history.
 - kind: MList
   properties:
   - name: author
