@@ -6,8 +6,8 @@
 	<hr>
 	<br>
 	
-	{% if mlist.description %}
-		<h2 class="alt">{{ mlist.description|wiki }}</h2>
+	{% if mlist.text %}
+		<h2 class="alt">{{ mlist.text|wiki }}</h2>
 	{% endif %}
 
 	{% include "items.html" %}	

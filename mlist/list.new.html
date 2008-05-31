@@ -1,0 +1,44 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+	<table>
+		<tr>
+			<td>
+				<form action="" method="post" style="margin-bottom:60px">
+				<h1>{% trans "Nome da lista" %}: <input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em;" /></h1>
+				<hr>
+				<br>
+				<h2 class="alt">{% trans "Descrição da lista" %}:<br><textarea name="text" id="text" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea></h2>
+				
+				<span class="large">
+					{% trans "Itens da lista (um por linha)" %}:<br />
+					<textarea name="items" id="items" rows="20" cols="40" style="font-size: 1em; width: 100%">{{ form.items|escape }}</textarea>
+					
+					<br />
+					<br />
+					
+					{% trans "Outras opções" %}:<br />
+					<input type="checkbox" name="private" {% if form.private %}checked{% endif %} /> {% trans "Lista privada" %} <i>{% trans "(apenas o criador pode vê-la)" %}</i><br />
+					
+					<br />
+					<br />
+					
+					{% if captcha %}
+						{% trans "Para garantir que você não é um bot, por favor responda o captcha:" %} <i>{% trans "(usuários logados não precisam fazer isso)" %}</i><br />
+						{{ captcha }}
+						<br />
+						<br />
+					{% endif %}
+				</span>
+				
+				<input type="submit" value="{% trans "Salvar" %}" />
+				</form>
+			</td>
+			<td style="width:200px; vertical-align:top;">
+				{% include "wikisyntax.html" %}
+			</td>
+		</tr>
+	</table>
+
+{% endblock %}

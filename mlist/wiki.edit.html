@@ -1,0 +1,36 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+	<table>
+		<tr>
+			<td>
+				<form action="" method="post" style="margin-bottom:20px">
+				<h1><input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em; width: 100%" /></h1>
+				<hr>
+				<br>
+			
+				<span class="large">
+					<textarea name="text" id="text" rows="40" cols="40" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea>
+					
+					<br />
+					<br />
+					
+					{% trans "Outras opções" %}:<br />
+					<input type="checkbox" name="private" {% if form.private %}checked{% endif %} /> Página privada <i>(apenas o criador pode vê-la)</i><br />
+					
+					<br />
+				</span>
+			
+				<input type="hidden" name="edit" value="1">
+				<input type="submit" value="Salvar" />
+				</form>
+				
+			</td>
+			<td style="width:200px; vertical-align:top;">
+				{% include "wikisyntax.html" %}
+			</td>
+		</tr>
+	</table>
+	
+{% endblock %}

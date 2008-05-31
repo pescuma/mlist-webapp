@@ -6,20 +6,20 @@
 		<tr>
 			<td>
 				<form action="" method="post" style="margin-bottom:20px">
-				<h1><input type="text" name="title" id="title" value="{{ mlist.title|escape }}" style="font-size: 1em; width: 100%" /></h1>
+				<h1><input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em; width: 100%" /></h1>
 				<hr>
 				<br>
-				<h2 class="alt"><textarea name="description" id="description" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ mlist.description|escape }}</textarea></h2>
+				<h2 class="alt"><textarea name="text" id="text" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea></h2>
 			
 				<span class="large">
 					Adicionar itens na lista (um por linha):<br>
-					<textarea name="items" id="items" rows="5" cols="40" style="font-size: 1em; width: 100%">{{ f_items|escape }}</textarea>
+					<textarea name="items" id="items" rows="5" cols="40" style="font-size: 1em; width: 100%">{{ form.items|escape }}</textarea>
 					
 					<br />
 					<br />
 					
 					{% trans "Outras opções" %}:<br />
-					<input type="checkbox" name="private" {% if mlist.private %}checked{% endif %} /> Privada <i>(apenas o criador da lista pode vê-la)</i><br />
+					<input type="checkbox" name="private" {% if form.private %}checked{% endif %} /> Lista privada <i>(apenas o criador pode vê-la)</i><br />
 					
 					<br />
 				</span>

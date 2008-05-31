@@ -2,9 +2,11 @@
 # coding=utf-8
 
 import cgi
+import urllib
+
 
 def isURLChar(c):
-	return c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./\\-_?=&%'
+	return c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./\\-_?=&%@#'
 
 def isURL(word):
 	if len(word) < 11:
@@ -19,9 +21,143 @@ def isURL(word):
 	
 	return True
 
-def isImage(word):
-	return word.endswith('.png') or word.endswith('.jpg') or word.endswith('.jpeg') or word.endswith('.gif') \
-	   	   or word.endswith('.bmp') or word.endswith('.ico') or word.endswith('.tif') 
+def _removeOtherParams(text):
+	pos = text.find('&')
+	if pos >= 0:
+		text = text[:pos]
+	pos = text.find('?')
+	if pos >= 0:
+		text = text[:pos]
+	pos = text.find('#')
+	if pos >= 0:
+		text = text[:pos]
+	pos = text.find('/')
+	if pos >= 0:
+		text = text[:pos]
+	return text
+
+def _getTextAfter(word, textList):
+	for base in textList:
+		if word.startswith(base):
+			return word[len(base):]
+	return None
+
+def _startsWith(word, textList):
+	for base in textList:
+		if word.startswith(base):
+			return True
+	return False
+
+class ImageURLFormater:
+	def handle(self, word):
+		if not self.isImage(word):
+			return None
+		return u'<img src="' + word + u'" />'
+	
+	def isImage(self, word):
+		return word.endswith('.png') or word.endswith('.jpg') or word.endswith('.jpeg') or word.endswith('.gif') \
+		   	   or word.endswith('.bmp') or word.endswith('.ico') or word.endswith('.tif') 
+
+
+class AnimotoURLFormater:
+	_BASE_URLS = [ u'http://animoto.com/play/', u'http://www.animoto.com/play/' ]
+	
+	def handle(self, word):
+		id = _getTextAfter(word, self._BASE_URLS)
+		if not id:
+			return None
+		id = _removeOtherParams(id)
+		return u'<span><embed id="video_player" width="432" height="263" flashvars="autostart=false&file=http://s3-p.animoto.com/Video/' + id + u'.flv&menu=true&volume=100&quality=high&repeat=false&usekeys=false&showicons=true&showstop=false&showdigits=false&enablejs=true&usecaptions=false&bufferlength=12&overstretch=false&remainonlastframe=true&javascriptid=video_player&backcolor=0x000000&frontcolor=0xBBBBBB&lightcolor=0xFFFFFF&screencolor=0x000000&width=432&height=263" allowscriptaccess="always" allowfullscreen="true" bgcolor="#000000" wmode="opaque" quality="high" name="video_player" src="http://animoto.com/swf/animotoplayer-3.15.swf" type="application/x-shockwave-flash"></embed></span>'
+
+
+class CleVRURLFormater:
+	_BASE_URLS = [ u'http://www.clevr.com/pano/', u'http://clevr.com/pano/' ]
+	
+	def handle(self, word):
+		id = _getTextAfter(word, self._BASE_URLS)
+		if not id:
+			return None
+		id = _removeOtherParams(id)
+		return u'<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="386" height="300"><param name="allowScriptAccess" value="never"><param name="movie" value="http://s3.clevr.com/CleVR?xmldomain=http://www.clevr.com/&amp;mov=' + id + u'"><embed src="http://s3.clevr.com/CleVR?xmldomain=http://www.clevr.com/&amp;mov=' + id + u'" width="386" height="300" name="CleVR" allowScriptAccess="never" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></object>'
+
+
+class YouTubeFormater:
+	_BASE_URLS = [ u'http://youtube.com/watch?v=', u'http://www.youtube.com/watch?v=' ]
+	
+	def handle(self, word):
+		id = _getTextAfter(word, self._BASE_URLS)
+		if not id:
+			return None
+		id = _removeOtherParams(id)
+		return u'<object width="425" height="355"><param name="movie" value="http://youtube.com/v/' + id + u'"></param><param name="wmode" value="transparent"></param><embed src="http://youtube.com/v/' + id + u'" type="application/x-shockwave-flash" wmode="transparent" width="425" height="355"></embed></object>'
+
+
+class FlickrFormater:
+	_BASE_URLS = [ u'http://www.flickr.com/slideShow/', u'http://flickr.com/slideShow/' ]
+	
+	def handle(self, word):
+		if not _startsWith(word, self._BASE_URLS):
+			return None
+		
+		return u'<iframe align="center" src="' + word + u'" frameBorder="0" width="450" scrolling="no" height="300"></iframe>' 
+
+
+class FlickrFormaterPictoBrowser:
+	_BASE_URLS = [ u'http://www.flickr.com/photos/', u'http://flickr.com/photos/' ]
+	
+	def handle(self, word):
+		data = _getTextAfter(word, self._BASE_URLS)
+		if not data:
+			return None
+		
+		username = _removeOtherParams(data)
+		params = '' # TODO '&userId='
+		data = data[len(username):]
+		
+		if data.startswith('/sets/'):
+			data = data[len('/sets/'):]
+			id = _removeOtherParams(data)
+			if not id:
+				return None
+			params = u'&source=sets&ids=' + id
+			
+#		elif data.startswith('/tags/'):
+#			data = data[len('/tags/'):]
+#			id = _removeOtherParams(data)
+#			if not id:
+#				return None
+#			params = u'&source=keyword&ids=' + id + u'&names=' + id
+		
+		else:
+			return None
+			
+		return u'<object width="400" height="300" align="middle"><param name="FlashVars" VALUE="userName=' + username + params + u'&titles=on&displayNotes=on&thumbAutoHide=on&imageSize=medium&vAlign=center&displayZoom=on&vertOffset=0&initialScale=off&bgAlpha=80"></param><param name="PictoBrowser" value="http://www.db798.com/pictobrowser.swf"></param><param name="scale" value="noscale"></param><param name="bgcolor" value="#dddddd"></param><embed src="http://www.db798.com/pictobrowser.swf" FlashVars="userName=' + username + params + u'&titles=on&displayNotes=on&thumbAutoHide=on&imageSize=medium&vAlign=center&displayZoom=on&vertOffset=0&initialScale=off&bgAlpha=80" loop="false" scale="noscale" bgcolor="#dddddd" width="400" height="300" name="PictoBrowser" align="middle"></embed></object>' 
+
+
+class PicasaURLFormater:
+	_BASE_URLS = [ u'http://picasaweb.google.com/', u'http://www.picasaweb.google.com/' ]
+	
+	def handle(self, word):
+		word = _getTextAfter(word, self._BASE_URLS)
+		if not word:
+			return None
+		
+		p = word.find('/')
+		if p < 0:
+			return None
+		
+		user = _removeOtherParams(word[:p]) 
+		word = word[p+1:]
+		p = word.find('?authkey=')
+		if p < 0:
+			return None
+		
+		album = _removeOtherParams(word[:p]) 
+		authkey = _removeOtherParams(word[p + len('?authkey='):])
+		
+		return u'<span><embed type="application/x-shockwave-flash" src="http://picasaweb.google.com/s/c/bin/slideshow.swf" width="400" height="267" flashvars="host=picasaweb.google.com&RGB=0x000000&feed=http%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2F' + user + u'%2Falbum%2F' + album + '%3Fkind%3Dphoto%26alt%3Drss%26authkey%3D' + authkey + '" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed></span>'
+
+
 
 class Formater:
 	text = u''
@@ -109,12 +245,13 @@ class LinkFormater:
 			return None
 		i += 1
 		
+		parser.eat(i)
+		
 		if text:
 			text = toHTML(text, True)
 		else:
 			text = cgi.escape(url)
 		
-		parser.eat(i)
 		return '<a href="' + url + '">' + text + '</a>'
 	
 	
@@ -125,14 +262,11 @@ class WikiParser:
 	_oneLineOnly = False
 	_out = u''
 	_lastWasEnter = False
+	_lastNumEnters = 0
 	_needSpace = False
 	_inParagraph = False
-	_formaters = []
-	
-	def __init__(self, text, oneLineOnly = False):
-		self._text = unicode(text)
-		self._oneLineOnly = oneLineOnly
-		self._formaters = [ Formater(u'/', u'<i>', u'</i>'), \
+	_formaters = [ LinkFormater(), \
+					  Formater(u'/', u'<i>', u'</i>'), \
 					  Formater(u'_', u'<u>', u'</u>'), \
 					  Formater(u'*', u'<b>', u'</b>'), \
 					  Formater(u'~', u'<del>', u'</del>'), \
@@ -140,8 +274,18 @@ class WikiParser:
 					  Formater(u',,', u'<sub>', u'</sub>'), \
 					  Formater(u'!!', u'<span class="highlight">', u'</span>'), \
 					  Formater(u'++', u'<span class="added">', u'</span>'), \
-					  Formater(u'--', u'<span class="removed">', u'</span>'), \
-					  LinkFormater() ]
+					  Formater(u'--', u'<span class="removed">', u'</span>') ]
+	_urlFormaters = [ ImageURLFormater(), AnimotoURLFormater(), PicasaURLFormater(), \
+					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser() ]
+	
+	
+	def registerURLFormater(urlFormater):
+		WikiParser._urlFormaters.append(urlFormater)
+	registerURLFormater = staticmethod(registerURLFormater)
+	
+	def __init__(self, text, oneLineOnly = False):
+		self._text = unicode(text)
+		self._oneLineOnly = oneLineOnly
 	
 	def getHTML(self):
 		return self._out
@@ -175,6 +319,8 @@ class WikiParser:
 		  return u''
 		ret = u''
 		if not self._inParagraph:
+			if self._lastNumEnters >= 4:
+				ret += u'<br />'
 			ret += u'<p>'
 		self._inParagraph = True
 		return ret
@@ -199,21 +345,26 @@ class WikiParser:
 		return ret
 		
 	def formatWord(self, word):
-		ret = u''
+		ret = None
+		
 		if isURL(word):
 			after = u''
 			if word[len(word)-1] in u'.?!:':
 				after = word[len(word)-1]
 				word = word[:len(word)-1]
 			
-			if isImage(word):
-				ret += u'<img src="' + word + u'" />'
-			else:
-				ret += u'<a href="' + word + u'">' + cgi.escape(word) + u'</a>'
+			for urlFormater in self._urlFormaters:
+				ret = urlFormater.handle(word)
+				if ret:
+					break
+			
+			if not ret:  
+				ret = u'<a href="' + word + u'">' + cgi.escape(word) + u'</a>'
+			
 			ret += after
 			
 		else: 
-			ret += cgi.escape(word)
+			ret = cgi.escape(word)
 		
 		return ret
 				
@@ -249,9 +400,14 @@ class WikiParser:
 				self.eat(1)
 				self.appendWord(False)
 				self._out += self.handleParagraph()
+				if self._lastWasEnter:
+					self._lastNumEnters += 1
+				else:
+					self._lastNumEnters = 1
 				self._lastWasEnter = True
 				self._needSpace = True
 				continue
+
 			
 			form = None
 			for f in self._formaters:

@@ -1,0 +1,27 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+	<h1>My stuff</h1>
+	<hr>
+	<br>
+
+	{% if pages %}
+		<ul class="large">
+			{% for page in pages %}
+				<li>
+					<a href="/{{ page.type }}/{{ page.id }}">{{ page.title|wikiSL }}</a> <span class="alt"> : {{ page.displayableType|escape }} ( criada em {{ page.dateCreated|date:"d/m/Y g:i a" }} )</span>
+					
+					<span style="margin-left:40px;"> 
+						<form method="post" style="display: inline"><input type="hidden" name="delete" value="{{ page.id }}"><input type="image" src="/icons/delete.png" /></form> 
+					</span>
+				</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<h2 class="alt">Você não criou nenhuma página ainda. Clique em New na barra superior para começar.</h2>
+	{% endif %}
+	
+{% endblock %}
+
+
