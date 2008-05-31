@@ -6,6 +6,25 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>{{ title|striptags|escape }}</title>
 
+	<link href="/css/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="/js/prettify.js"></script>
+	
+	<link type="text/css" rel="stylesheet" href="/css/SyntaxHighlighter.css"></link>
+	<script language="javascript" src="/js/SyntaxHighlighter/shCore.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushDelphi.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushJava.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushJScript.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushPhp.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushPython.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushRuby.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushSql.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushVb.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushXml.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushCpp.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushCSharp.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushCss.js"></script>
+	<script language="javascript" src="/js/SyntaxHighlighter/shBrushBash.js"></script>
+
   <!-- Framework CSS -->
 	<link rel="stylesheet" href="/css/reset.css" type="text/css" media="screen, projection">
 	<link rel="stylesheet" href="/css/typography.css" type="text/css" media="screen, projection">
@@ -13,10 +32,10 @@
 	<link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, projection">
 	<link rel="stylesheet" href="/css/print.css" type="text/css" media="print">
   <!--[if IE]><link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, projection"><![endif]-->
-
+  
 </head>
 
-<body>
+<body onload="prettyPrint(); dp.SyntaxHighlighter.ClipboardSwf = '/js/SyntaxHighlighter/clipboard.swf'; dp.SyntaxHighlighter.HighlightAll('code');">
 
 	<div style="border-bottom:30px solid #FFFFFF;">
 		<div style="border-bottom:1px solid #C9D7F1; height: 22px;"> 

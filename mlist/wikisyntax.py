@@ -253,7 +253,79 @@ class LinkFormater:
 			text = cgi.escape(url)
 		
 		return '<a href="' + url + '">' + text + '</a>'
+
+class CodePretiffyFormater:
+	def start(self):
+		return u''
+
+	def finish(self):
+		return u''
+
+	def handle(self, parser):
+		if parser.getChars(6) != '[code]':
+			return None
+		
+		i = 7
+		while parser.getChar(i) and parser.getCharSlice(i, 7) != '[/code]':
+			i += 1
+		
+		if not parser.getChar(i):
+			return None
+		
+		text = parser.getCharSlice(6, i - 6)
+		parser.eat(i + 7)
+		
+		if not parser.isInParagraph() and parser.isAtEndOfParagraph():
+			return u'<pre class="prettyprint">' + cgi.escape(text) + u'</pre>'
+		else:
+			return u'<code class="prettyprint">' + cgi.escape(text) + u'</code>'
+
+
+class SyntaxHightlighterFormater:
+	_langs = [ 'cpp', 'c', 'c++', 'c#', 'c-sharp', 'csharp', 'css', \
+			   'delphi', 'pascal', 'java', 'js', 'jscript', 'javascript', \
+			   'php', 'py', 'python', 'rb', 'ruby', 'rails', 'ror', 'sql', \
+			   'vb', 'vb.net', 'xml', 'html', 'xhtml', 'xslt', 'bash', 'sh' ]
 	
+	def start(self):
+		return u''
+
+	def finish(self):
+		return u''
+
+	def handle(self, parser):
+		if parser.getChar() != '[':
+			return None
+		
+		i = 1
+		while parser.getChar(i) and parser.getCharSlice(i, 1) != ']':
+			i += 1
+		if not parser.getChar(i):
+			return None
+			
+		tag = parser.getCharSlice(1, i-1)
+		lang = None
+		for l in self._langs:
+			if tag == l:
+				lang = l
+				break
+		if not lang:
+			return None
+		
+		i += 1
+		
+		s = len(lang) + 3
+		while parser.getChar(i) and parser.getCharSlice(i, s) != '[/' + lang + ']':
+			i += 1
+		if not parser.getChar(i):
+			return None
+		
+		s -= 1
+		text = parser.getCharSlice(s, i - s)
+		parser.eat(i + s + 1)
+		
+		return u'<pre name="code" class="' + lang + '">' + cgi.escape(text) + u'</pre>'
+		
 	
 class WikiParser:
 	_i = 0
@@ -266,15 +338,17 @@ class WikiParser:
 	_needSpace = False
 	_inParagraph = False
 	_formaters = [ LinkFormater(), \
-					  Formater(u'/', u'<i>', u'</i>'), \
-					  Formater(u'_', u'<u>', u'</u>'), \
-					  Formater(u'*', u'<b>', u'</b>'), \
-					  Formater(u'~', u'<del>', u'</del>'), \
-					  Formater(u'^', u'<sup>', u'</sup>'), \
-					  Formater(u',,', u'<sub>', u'</sub>'), \
-					  Formater(u'!!', u'<span class="highlight">', u'</span>'), \
-					  Formater(u'++', u'<span class="added">', u'</span>'), \
-					  Formater(u'--', u'<span class="removed">', u'</span>') ]
+				   CodePretiffyFormater(), \
+				   SyntaxHightlighterFormater(), \
+				   Formater(u'/', u'<i>', u'</i>'), \
+				   Formater(u'_', u'<u>', u'</u>'), \
+				   Formater(u'*', u'<b>', u'</b>'), \
+				   Formater(u'~', u'<del>', u'</del>'), \
+				   Formater(u'^', u'<sup>', u'</sup>'), \
+				   Formater(u',,', u'<sub>', u'</sub>'), \
+				   Formater(u'!!', u'<span class="highlight">', u'</span>'), \
+				   Formater(u'++', u'<span class="added">', u'</span>'), \
+				   Formater(u'--', u'<span class="removed">', u'</span>') ]
 	_urlFormaters = [ ImageURLFormater(), AnimotoURLFormater(), PicasaURLFormater(), \
 					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser() ]
 	
@@ -294,13 +368,21 @@ class WikiParser:
 		if diff > 0:
 			start = self._i
 			end = self._i + diff
-			if end > len(self._text):
-				end = len(self._text)
 		else:
 			start = self._i + diff
 			end = self._i
 			if start < 0:
 				start = 0
+		
+		return self._text[start:end]
+	
+	def getCharSlice(self, start, diff = 1):
+		start = self._i + start
+		end = start + diff
+		if start < 0:
+			start = 0
+		if end < 0:
+			end = 0
 		
 		return self._text[start:end]
 
@@ -309,6 +391,9 @@ class WikiParser:
 		if pos < 0 or pos >= len(self._text):
 			return None
 		return self._text[pos]
+	
+	def isInParagraph(self):
+		return self._inParagraph
 
 	def eat(self, len = 1):
 		self._i += len
@@ -382,7 +467,26 @@ class WikiParser:
 		
 		self._word = u''
 		self._needSpace = False
+	
+	def isAtEndOfParagraph(self):
+		i = 0
+		count = 0
+		while self.getChar(i) and count < 2:
+			c = self.getChar(i)
+			
+			if c == u'\r':
+				if self.getChar(i + 1) == u'\n':
+					i += 1
+				c = u'\n'
+			
+			if c == u'\n':
+				count += 1
+			
+			if c not in u' \t\n':
+				break
 		
+		return count >= 2 or not self.getChar(i)
+			
 	
 	def parse(self):
 		if self._oneLineOnly:
@@ -408,7 +512,6 @@ class WikiParser:
 				self._needSpace = True
 				continue
 
-			
 			form = None
 			for f in self._formaters:
 				form = f.handle(self)

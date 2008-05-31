@@ -33,3 +33,13 @@ html>body p code { *white-space: normal; }
 
 /* IE 6&7 has problems with setting proper <hr> margins. */
 hr  { margin: -8px auto 11px; }
+
+
+
+
+pre.prettyprint{margin:2.5em 0 2.5em 4em}
+
+.dp-highlighter
+{
+	margin:2.5em 0 2.5em 4em;
+}
