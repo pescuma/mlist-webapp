@@ -1,11 +1,11 @@
-﻿{% if mlist.items %}
+﻿{% if page.items %}
 	<ul class="large">
-		{% for item in mlist.items %}
+		{% for item in page.items %}
 			<li>
 				{% if item.bought %}
 					<span class="quiet" style="text-decoration:line-through;">{{ item.text|wikiSL }}</span> 
-					{% if mlist.isAuthor %}
-						<span class="small quiet em" style="font-style:italic;">( {{ item.boughtDisplayableNick|escape }} em {{ item.boughtDate|date:"d/m/Y g:i a" }} )</span> 
+					{% if page.isAuthor %}
+						<span class="small quiet em" style="font-style:italic;">( {{ item.boughtBy|nick }} em {{ item.boughtDate|date:"d/m/Y g:i a" }} )</span> 
 					{% endif %}
 				{% else %}
 					{{ item.text|wikiSL }}
@@ -13,7 +13,7 @@
 				
 				<span style="margin-left:40px;"> 
 					{% if item.bought %}
-						{% if mlist.isAuthor %}
+						{% if page.isAuthor %}
 							<form method="post" style="display: inline;"><input type="hidden" name="unbought" value="{{ item.id }}"><input type="image" src="/icons/basket_delete.png" /></form> 
 						{% else %}
 							{% if item.boughtBy %}
@@ -26,7 +26,7 @@
 						<form method="post" style="display: inline;"><input type="hidden" name="bought" value="{{ item.id }}"><input type="image" src="/icons/basket_add.png" /></form> 
 					{% endif %}
 					
-					{% if mlist.isAuthor %}
+					{% if page.isAuthor %}
 						<form method="post" style="display: inline; margin-left:5px;"><input type="hidden" name="delete" value="{{ item.id }}"><input type="image" src="/icons/delete.png" /></form> 
 					{% endif %}
 				</span>

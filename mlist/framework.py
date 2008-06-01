@@ -36,8 +36,11 @@ class Menu:
 
 
 class Field:
+	desc = ''
 	type = 'text'
 	max = None
+	required = False
+	cls = None
 	
 	def __init__(self, name, **keywords):
 		self.name = name
@@ -72,6 +75,8 @@ class BasePage(webapp.RequestHandler):
 			self.right_menus.append(Menu(users.get_current_user().email()))
 
 	def _getAcceptedLanguages(self):
+		if not os.environ.has_key('HTTP_ACCEPT_LANGUAGE'):
+			return []
 		accept = os.environ['HTTP_ACCEPT_LANGUAGE']
 		next = accept
 		langs = []
@@ -100,7 +105,43 @@ class BasePage(webapp.RequestHandler):
 		self.infos.append(info)
 		
 	def form(self, fieldName):
-		return self.request.get(fieldName).strip(' \t\r\n')
+		val = self.request.get(fieldName)
+		if hasattr(val, 'filename'):
+			file = object()
+			file.file_name = val.filename
+			file.file_data = val.file.read()
+			return file
+		else:
+			return val.strip(' \t\r\n')
+		
+	def formField(self, fieldName, fieldType):
+		val = self.form(fieldName)
+		
+		if hasattr(val, 'file_name') and fieldType != 'file':
+			val = ''
+			
+		if fieldType == 'file':
+			if hasattr(val, 'file_name'):
+				return val
+			else:
+				return None
+		elif fieldType == 'boolean':
+			if val:
+				return bool(val)
+			else:
+				return False
+		elif fieldType == 'text' or fieldType == '':
+			if val:
+				return val
+			else:
+				return ''
+		elif getattr(fieldType, 'load') and callable(getattr(fieldType, 'load')):
+			if val:
+				return fieldType.load(val)
+			else:
+				return None
+		
+		return val
 	
 	def getForm(self, *props):
 		fields = dict()
@@ -108,35 +149,22 @@ class BasePage(webapp.RequestHandler):
 			fields[prop.name] = prop
 			
 		form = Form()
+		for field in props:
+			val = self.formField(field.name, field.type)
+			if field.max:
+				val = val[:field.max]
+			setattr(form, field.name, val)
+			
 		for name in self.request.POST:
 			val = self.request.POST.get(name)
-			if hasattr(val, 'filename'):
-				file = object()
-				file.name = val.filename
-				file.data = val.file.read()
-				file.isFile = True
-				setattr(form, name, file)
-			else:
-				val = val.strip(' \t\r\n')
-				
-				if fields.has_key(name):
-					field = fields[name]
-					if field.max:
-						val = val[:field.max]
-					if field.type == 'boolean':
-						val = bool(val)
-			
-				setattr(form, name, val)
-		
-		for field in props:
-			if hasattr(form, field.name):
+			if hasattr(form, name):
 				continue
-			if field.type == 'boolean':
-				val = False
-			else:
-				val = ''
-				 
-			setattr(form, field.name, val)
+			setattr(form, name, self.form(name))
+		
+		# Validate
+		for field in props:
+			if field.required and not getattr(form, field.name):
+				self.err(t('%s não pode estar em branco') % field.desc)
 		
 		return form
 	

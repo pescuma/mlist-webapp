@@ -8,6 +8,16 @@ import cgi
 import wikisyntax
 
 
+def nick(value):
+	if not value:
+		return cgi.escape(t('Anonimo'))
+	
+	nick = value.nickname()
+	pos = nick.rfind('@')
+	if pos >= 0:
+	  nick = nick[:pos] + '@...'
+	return cgi.escape(nick)
+
 def wiki(value):
 	return wikisyntax.toHTML(value, False)
 
@@ -33,6 +43,7 @@ def trans(parser, token):
 	return TransNode(format_string[1:-1])
 
 register = webapp.template.create_template_register()
+register.filter(nick)
 register.filter(wiki)
 register.filter(wikiSL)
 register.tag('trans', trans)

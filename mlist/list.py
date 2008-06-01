@@ -49,18 +49,12 @@ class MListItem(db.Model):
 	mlist = db.Reference(MList)
 	order = db.IntegerProperty()
 	
+	def load(id):
+		return db.get(db.Key(id))
+	load = staticmethod(load)
+
 	def id(self):
 		return str(self.key())
-	
-	def boughtDisplayableNick(self):
-		if not self.boughtBy:
-			return t('Anonimo')
-		
-		nick = self.boughtBy.nickname()
-		pos = nick.rfind('@')
-		if pos >= 0:
-		  nick = nick[:pos] + '@...'
-		return nick
 
 
 
@@ -136,38 +130,28 @@ class NewList(BaseListPage, BaseNewPage):
 		self.redirect('/list/' + mlist.id())
 
 
-class ViewList(BaseListPage, BasePage):
+class ViewList(BaseListPage, BaseViewPage):
 	URL = '/list/(.+)'
-
-	def load(self, id):
-		mlist = MList.load(id)
-		
-		if mlist and not mlist.isAuthor() and mlist.private:
-			mlist = None
-		
-		return mlist
+	TYPE = MList
 	
-	def show(self, mlist):
+	def show(self):
 #		if not users.get_current_user():
 #			self.warn(cgi.escape('Você não está logado. Se você alterar um item, você não ' + \
 #						'poderá desfazer isso depois. Você tem certeza que não deseja ') + '<a href="' + \
 #						users.create_login_url(self.request.uri) + '">logar-se</a>?')
 		
-		if mlist and mlist.isAuthor():
-			self.left_menus.insert(0, Menu(t('Edit'), '/list/edit/' + mlist.id()))
+		if self.page and self.page.isAuthor():
+			self.left_menus.insert(0, Menu(t('Edit'), '/list/edit/' + self.page.id()))
 		
-		self.title = wikisyntax.toHTML(mlist.title, True)
-		self.render('list.view.html', mlist=mlist)
+		self.title = wikisyntax.toHTML(self.page.title, True)
+		self.render('list.view.html')
 		
 	def get(self, *groups):
-		BasePage.get(self)
-		
-		mlist = self.load(groups[0])
-		if not mlist:
-			self.error(404)
+		BaseViewPage.get(self, *groups)
+		if not self.page:
 			return
 		
-		self.show(mlist)
+		self.show()
 
 	def canUnbuy(self, mlist, item):
 		if item.bought == 0:
@@ -188,16 +172,25 @@ class ViewList(BaseListPage, BasePage):
 		return False
 	
 	def handlePublicChanges(self, mlist):
-		item = mlist.getItemById(self.form('bought'))
-		if item:
-			item.bought = 1
-			item.boughtBy = users.get_current_user()
-			item.boughtDate = datetime.datetime.now()
-			item.put()
+		form = self.getForm(Field('bought', type=MListItem), \
+						    Field('unbought', type=MListItem), \
+						    Field('delete', type=MListItem))
 		
-		item = mlist.getItemById(self.form('unbought'))
-		if item and item.bought != 0:
-			if not self.canUnbuy(mlist, item):
+		if form.bought:
+			item = form.bought
+			if item.bought != 0:
+				self.err(t("Este item já foi comprado por outra pessoa"))
+			else:
+				item.bought = 1
+				item.boughtBy = users.get_current_user()
+				item.boughtDate = datetime.datetime.now()
+				item.put()
+		
+		if form.unbought:
+			item = form.unbought
+			if item.bought == 0:
+				self.err(t("Você não pode desmarcar este ítem, pois ele não foi comprado ainda"))
+			elif not self.canUnbuy(mlist, item):
 				self.err(t("Você não pode desmarcar este ítem, pois ele foi comprado por outra pessoa"))
 			else:
 				item.bought = 0
@@ -205,72 +198,70 @@ class ViewList(BaseListPage, BasePage):
 				item.boughtDate = None
 				item.put()
 		
-		item = mlist.getItemById(self.form('delete'))
-		if item:
+		if form.delete:
+			item = form.delete
 			if not self.canDelete(mlist, item):
 				self.err(t("Apenas o criador da lista pode apagar itens"))
 			else:
 				item.delete()
 	
+	
 	def post(self, *groups):
-		BasePage.post(self)
-		
-		mlist = self.load(groups[0])
-		if not mlist:
-			self.error(404)
+		BaseViewPage.post(self, *groups)
+		if not self.page:
 			return
 		
-		self.handlePublicChanges(mlist)
-		
-		self.show(mlist)
+		self.handlePublicChanges(self.page)
+		self.show()
 
 
 class EditList(ViewList):
 	URL = '/list/edit/(.+)'
 	
-	def show(self, mlist):
-		if not mlist.isAuthor():
-			ViewList.show(self, mlist)
+	def renderForm(self, form):
+		self.left_menus.insert(0, Menu(t('Cancel'), '/list/' + self.page.id()))
+		self.title = t('Editando') + ' ' + wikisyntax.toHTML(self.page.title, False)
+		self.render('list.edit.html', form=form)
+	
+	def show(self):
+		if not self.page.isAuthor():
+			ViewList.show(self)
 			return
 		
 		form = Form()
-		form.title = mlist.title
-		form.text = mlist.text
-		form.private = mlist.private
+		form.title = self.page.title
+		form.text = self.page.text
+		form.private = self.page.private
 		
-		self.left_menus.insert(0, Menu(t('Cancel'), '/list/' + mlist.id()))
-		self.title = t('Editando') + ' ' + wikisyntax.toHTML(mlist.title, False)
-		self.render('list.edit.html', form=form, mlist=mlist)
+		self.renderForm(form)
+		
 	
 	def post(self, *groups):
-		BasePage.post(self)
-		
-		mlist = self.load(groups[0])
-		if not mlist:
-			self.error(404)
+		BaseViewPage.post(self, *groups)
+		if not self.page:
 			return
 		
-		self.handlePublicChanges(mlist)
+		self.handlePublicChanges(self.page)
 		
 		form = self.getForm(Field('title', max=500), Field('private', type='boolean'), Field('edit', type='boolean'))
 		
-		if not mlist.isAuthor() or not form.edit:
-			self.show(mlist)
+		if not self.page.isAuthor() or not form.edit:
+			self.show()
 			return
 		
 		if len(form.title) <= 0:
 			self.err(t('O título não pode estar em branco'))
 			
 		if len(self.errors) > 0:
-			self.render('list.edit.html', form=form, mlist=mlist)
+			self.renderForm(form)
 			return
 			
-		mlist.title = form.title
-		mlist.text = form.text
-		mlist.private = form.private
-		mlist.put()
+		self.page.title = form.title
+		self.page.text = form.text
+		self.page.private = form.private
+		self.page.put()
 		
-		self.addItems(mlist, self.getItemNames(form.items))
+		self.addItems(self.page, self.getItemNames(form.items))
 		
-		self.redirect('/list/' + mlist.id())
+		self.redirect('/list/' + self.page.id())
 

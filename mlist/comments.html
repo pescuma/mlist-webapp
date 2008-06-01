@@ -1,0 +1,29 @@
+﻿<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+{% for comment in page.comments %}
+	<div style="border-top:2px solid #C3D9FF; margin:1em 0pt 0pt 0pt">
+		<div style="color: #666; margin:0pt 0pt 0.5em 0pt">
+			{% trans "Comentário por" %} {{ comment.author|nick }} {% trans "em" %} {{ comment.date|date:"d/m/Y g:i a" }} 
+			{% if page.isAuthor or comment.isAuthor %}
+				<span style="margin-left:40px;"><form method="post" style="display: inline;"><input type="hidden" name="removeCommentId" value="{{ comment.id }}" /><input type="image" src="/icons/delete.png" /></form></span>
+			{% endif %}
+		</div>
+		<div>
+		{{ comment.text|wiki }}
+		</div>
+	</div>
+{% endfor %}
+
+<div style="border-top:2px solid #C3D9FF; margin:1em 0pt 0pt 0pt">
+	<form action="" method="post">
+		<br />
+		{% trans "Adicionar comentário:" %}<br />
+		<textarea name="addCommentText" id="addCommentText" rows="5" cols="40" style="font-size: 1em; width: 99%"></textarea><br />
+		<input type="submit" value="{% trans 'Adicionar' %}" />
+	</form>
+</div>

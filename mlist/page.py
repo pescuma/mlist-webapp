@@ -22,7 +22,11 @@ class Page(db.Model):
 	author = db.UserProperty()
 	dateCreated = db.DateTimeProperty(auto_now_add=True)
 	private = db.BooleanProperty()
-	
+		
+	def __comments(self):
+		return list(self.comment_set.order('date'))
+	comments = property(fget=__comments)
+
 	def load(id):
 		return db.get(db.Key(id))
 	load = staticmethod(load)
@@ -42,8 +46,21 @@ class Page(db.Model):
 			return t('Counter')
 
 
+class Comment(db.Model):
+	text = db.TextProperty()
+	author = db.UserProperty()
+	date = db.DateTimeProperty(auto_now_add=True)
+	page = db.Reference(Page)
 
+	def load(id):
+		return db.get(db.Key(id))
+	load = staticmethod(load)
+	
+	def id(self):
+		return str(self.key())
 
+	def isAuthor(self):
+		return self.author and self.author == users.get_current_user()
 
 
 class BaseNewPage(BasePage):
@@ -78,3 +95,53 @@ class BaseNewPage(BasePage):
 	def post(self):
 		BasePage.post(self)
 		self.createMenus()
+
+
+class BaseViewPage(BasePage):
+	TYPE = Page
+	page = None
+	
+	def load(self, TYPE, id):
+		page = TYPE.load(id)
+		
+		if page and not page.isAuthor() and page.private:
+			page = None
+		
+		if not page:
+			self.error(404)
+
+		return page
+
+	def get(self, *groups):
+		BasePage.get(self)
+		self.page = self.load(self.TYPE, groups[0])
+		
+		
+	def post(self, *groups):
+		BasePage.post(self)
+		self.page = self.load(self.TYPE, groups[0])
+		if not self.page:
+			return
+		
+		text = self.form('addCommentText')
+		if text:
+			comment = Comment()
+			comment.text = text
+			comment.author = users.get_current_user()
+			comment.page = self.page
+			comment.put()
+		
+		id = self.form('removeCommentId')
+		if id:
+			comment = Comment.load(id)
+			if comment:
+				if not comment.isAuthor() and not self.page.isAuthor():
+					self.err(t("Apenas o criador de um comentário pode apagá-lo"))
+				else:
+					comment.delete()
+		
+	def render(self, html, **keywords):
+		keywords['page'] = self.page
+		BasePage.render(self, html, **keywords)
+
+

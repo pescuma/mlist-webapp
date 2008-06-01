@@ -2,15 +2,17 @@
 
 {% block content %}
 
-	<h1>{{ mlist.title|wikiSL }}</h1>
-	<hr>
-	<br>
+	<h1>{{ page.title|wikiSL }}</h1>
+	<hr />
+	<br />
 	
-	{% if mlist.text %}
-		<h2 class="alt">{{ mlist.text|wiki }}</h2>
+	{% if page.text %}
+		<h2 class="alt">{{ page.text|wiki }}</h2>
 	{% endif %}
 
-	{% include "items.html" %}	
+	{% include "items.html" %}
+	
+	{% include "comments.html" %}
 	
 {% endblock %}
 

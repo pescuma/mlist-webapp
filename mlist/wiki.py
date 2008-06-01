@@ -65,75 +65,70 @@ class NewWiki(BaseNewPage):
 		self.redirect('/wiki/' + wiki.id())
 
 
-class ViewWiki(BasePage):
+class ViewWiki(BaseViewPage):
 	URL = '/wiki/(.+)'
-
-	def load(self, id):
-		wiki = Wiki.load(id)
-		if wiki and not wiki.isAuthor() and wiki.private:
-			wiki = None
-		return wiki
+	TYPE = Wiki
 	
-	def show(self, wiki):
-		if wiki and wiki.isAuthor():
-			self.left_menus.insert(0, Menu(t('Edit'), '/wiki/edit/' + wiki.id()))
+	def show(self):
+		if self.page.isAuthor():
+			self.left_menus.insert(0, Menu(t('Edit'), '/wiki/edit/' + self.page.id()))
 		
-		self.title = wikisyntax.toHTML(wiki.title, True)
-		self.render('wiki.view.html', wiki=wiki)
+		self.title = wikisyntax.toHTML(self.page.title, True)
+		self.render('wiki.view.html')
 		
 	def get(self, *groups):
-		BasePage.get(self)
-		
-		wiki = self.load(groups[0])
-		if not wiki:
-			self.error(404)
+		BaseViewPage.get(self, *groups)
+		if not self.page:
 			return
 		
-		self.show(wiki)
+		self.show()
+		
+	def post(self, *groups):
+		BaseViewPage.post(self, *groups)
+		if not self.page:
+			return
+		
+		self.show()
 
 
 class EditWiki(ViewWiki):
 	URL = '/wiki/edit/(.+)'
 	
-	def show(self, wiki):
-		if not wiki.isAuthor():
-			ViewWiki.show(self, wiki)
+	def renderForm(self, form):
+		self.left_menus.insert(0, Menu(t('Cancel'), '/wiki/' + self.page.id()))
+		self.title = t('Editando') + ' ' + wikisyntax.toHTML(self.page.title, False)
+		self.render('wiki.edit.html', form=form)
+	
+	def show(self):
+		if not self.page.isAuthor():
+			ViewWiki.show(self)
 			return
 		
 		form = Form()
-		form.title = wiki.title
-		form.text = wiki.text
-		form.private = wiki.private
+		form.title = self.page.title
+		form.text = self.page.text
+		form.private = self.page.private
 		
-		self.left_menus.insert(0, Menu(t('Cancel'), '/wiki/' + wiki.id()))
-		self.title = t('Editando') + ' ' + wikisyntax.toHTML(wiki.title, False)
-		self.render('wiki.edit.html', form=form, wiki=wiki)
-	
+		self.renderForm(form)
+		
 	def post(self, *groups):
-		ViewWiki.post(self)
-		
-		wiki = self.load(groups[0])
-		if not wiki:
-			self.error(404)
+		BaseViewPage.post(self, *groups)
+		if not self.page:
+			return
+		if not self.page.isAuthor():
+			self.show()
 			return
 		
-		form = self.getForm(Field('title', max=500), Field('private', type='boolean'), Field('edit', type='boolean'))
-		
-		if not wiki.isAuthor() or not form.edit:
-			self.show(wiki)
-			return
-		
-		if len(form.title) <= 0:
-			self.err(t('O título não pode estar em branco'))
-			
+		form = self.getForm(Field('title', desc='O título', max=500, required=True), \
+						    Field('private', type='boolean'))
 		if len(self.errors) > 0:
-			self.render('wiki.edit.html', form=form, wiki=wiki)
+			self.renderForm(form)
 			return
 			
-		wiki.title = form.title
-		wiki.text = form.text
-		wiki.private = form.private
-		wiki.put()
+		self.page.title = form.title
+		self.page.text = form.text
+		self.page.private = form.private
+		self.page.put()
 		
-		self.redirect('/wiki/' + wiki.id())
+		self.redirect('/wiki/' + self.page.id())
 

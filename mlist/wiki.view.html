@@ -2,11 +2,13 @@
 
 {% block content %}
 
-	<h1>{{ wiki.title|wikiSL }}</h1>
-	<hr>
-	<br>
+	<h1>{{ page.title|wikiSL }}</h1>
+	<hr />
+	<br />
 	
-	<span class="large">{{ wiki.text|wiki }}</span>
+	<span class="large">{{ page.text|wiki }}</span>
+	
+	{% include "comments.html" %}
 	
 {% endblock %}
 

@@ -53,7 +53,14 @@ _EN = {
 	'Salvar' : 'Save',
 	'Nome da página' : 'Page name',
 	'List' : 'List',
-	'Wiki Page' : 'Wiki Page',  
+	'Wiki Page' : 'Wiki Page',
+	'%s não pode estar em branco' : '%s can\'t be empty',   
+	'Você não pode desmarcar este ítem, pois ele não foi comprado ainda' : 'You can\'t unmark this item, because it was not bought yet',
+	'Adicionar comentário:' : 'Add comment:',
+	'Adicionar' : 'Add',
+	'Comentário por' : 'Comment by',
+	'em' : 'in',   
+	'O título não pode estar em branco' : 'Title can\'t be empty', 
 }
 
 
@@ -108,6 +115,13 @@ _PT_BR = {
 	'Nome da página' : 'Nome da página',
 	'List' : 'Lista',
 	'Wiki Page' : 'Página wiki',    
+	'%s não pode estar em branco' : '%s não pode estar em branco', 
+	'Você não pode desmarcar este ítem, pois ele não foi comprado ainda' : 'Você não pode desmarcar este ítem, pois ele não foi comprado ainda',
+	'Adicionar comentário:' : 'Adicionar comentário:',
+	'Adicionar' : 'Adicionar',
+	'Comentário por' : 'Comentário por',
+	'em' : 'em',   
+	'O título não pode estar em branco' : 'O título não pode estar em branco', 
 }
 
 

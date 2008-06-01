@@ -254,38 +254,37 @@ class LinkFormater:
 		
 		return '<a href="' + url + '">' + text + '</a>'
 
-class CodePretiffyFormater:
-	def start(self):
-		return u''
 
-	def finish(self):
-		return u''
+class CodePretiffyTag:
+	def canHandle(self, tagname):
+		return tagname == 'code'
 
-	def handle(self, parser):
-		if parser.getChars(6) != '[code]':
-			return None
-		
-		i = 7
-		while parser.getChar(i) and parser.getCharSlice(i, 7) != '[/code]':
-			i += 1
-		
-		if not parser.getChar(i):
-			return None
-		
-		text = parser.getCharSlice(6, i - 6)
-		parser.eat(i + 7)
-		
+	def handle(self, parser, tag, text):
 		if not parser.isInParagraph() and parser.isAtEndOfParagraph():
 			return u'<pre class="prettyprint">' + cgi.escape(text) + u'</pre>'
 		else:
 			return u'<code class="prettyprint">' + cgi.escape(text) + u'</code>'
+	
 
 
-class SyntaxHightlighterFormater:
+class SyntaxHightlighterTag:
 	_langs = [ 'cpp', 'c', 'c++', 'c#', 'c-sharp', 'csharp', 'css', \
 			   'delphi', 'pascal', 'java', 'js', 'jscript', 'javascript', \
 			   'php', 'py', 'python', 'rb', 'ruby', 'rails', 'ror', 'sql', \
 			   'vb', 'vb.net', 'xml', 'html', 'xhtml', 'xslt', 'bash', 'sh' ]
+	
+	def canHandle(self, tagname):
+		for l in self._langs:
+			if tagname == l:
+				return True
+		return False
+
+	def handle(self, parser, tag, text):
+		return u'<pre name="code" class="' + tag + '">' + cgi.escape(text) + u'</pre>'
+
+
+class TagFormater:
+	_tags = [ SyntaxHightlighterTag(), CodePretiffyTag() ]
 	
 	def start(self):
 		return u''
@@ -297,39 +296,38 @@ class SyntaxHightlighterFormater:
 		if parser.getChar() != '[':
 			return None
 		
-		i = 1
-		while parser.getChar(i) and parser.getCharSlice(i, 1) != ']':
-			i += 1
-		if not parser.getChar(i):
+		i = parser.find(']', 1)
+		if not i:
 			return None
 			
-		tag = parser.getCharSlice(1, i-1)
-		lang = None
-		for l in self._langs:
-			if tag == l:
-				lang = l
-				break
-		if not lang:
+		tagname = parser.getCharSlice(1, i-1)
+		tag = self._getTag(tagname)
+		if not tag:
 			return None
 		
-		i += 1
+		parser.eat(i + 1)
+
+		endTag = '[/' + tagname + ']'
+		i = parser.find(endTag)
+		if not i:
+			i = parser.getLenToParse()
 		
-		s = len(lang) + 3
-		while parser.getChar(i) and parser.getCharSlice(i, s) != '[/' + lang + ']':
-			i += 1
-		if not parser.getChar(i):
-			return None
+		text = parser.getChars(i)
+		parser.eat(i + len(endTag))
 		
-		s -= 1
-		text = parser.getCharSlice(s, i - s)
-		parser.eat(i + s + 1)
+		return tag.handle(parser, tagname, text)
 		
-		return u'<pre name="code" class="' + lang + '">' + cgi.escape(text) + u'</pre>'
+	def _getTag(self, name):
+		for tag in self._tags:
+			if tag.canHandle(name):
+				return tag
+		return None
 		
 	
 class WikiParser:
 	_i = 0
 	_text = u''
+	_len = 0
 	_word = u''
 	_oneLineOnly = False
 	_out = u''
@@ -338,8 +336,7 @@ class WikiParser:
 	_needSpace = False
 	_inParagraph = False
 	_formaters = [ LinkFormater(), \
-				   CodePretiffyFormater(), \
-				   SyntaxHightlighterFormater(), \
+				   TagFormater(), \
 				   Formater(u'/', u'<i>', u'</i>'), \
 				   Formater(u'_', u'<u>', u'</u>'), \
 				   Formater(u'*', u'<b>', u'</b>'), \
@@ -359,6 +356,7 @@ class WikiParser:
 	
 	def __init__(self, text, oneLineOnly = False):
 		self._text = unicode(text)
+		self._len = len(self._text)
 		self._oneLineOnly = oneLineOnly
 	
 	def getHTML(self):
@@ -388,7 +386,7 @@ class WikiParser:
 
 	def getChar(self, diff = 0):
 		pos = self._i + diff
-		if pos < 0 or pos >= len(self._text):
+		if pos < 0 or pos >= self._len:
 			return None
 		return self._text[pos]
 	
@@ -397,6 +395,18 @@ class WikiParser:
 
 	def eat(self, len = 1):
 		self._i += len
+	
+	def find(self, text, start = 0):
+		textLen = len(text)
+		pos = self._i + start
+		while pos < self._len and self._text[pos:pos+textLen] != text:
+			pos += 1
+		if pos >= self._len:
+			return None
+		return pos - self._i
+	
+	def getLenToParse(self):
+		return self._len - self._i
 	
 	
 	def startParagraph(self):
@@ -492,8 +502,8 @@ class WikiParser:
 		if self._oneLineOnly:
 			self._inParagraph = True
 		
-		while self.getChar():
-			c = self.getChar()
+		while self._i < self._len:
+			c = self._text[self._i]
 			
 			if c == u'\r':
 				if self.getChar(1) == u'\n':

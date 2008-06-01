@@ -6,8 +6,6 @@ from wikisyntax import *
 
 class WikiSyntaxTestCase(unittest.TestCase):
 	def runTest(self):
-		self.assertEquals(u'<p><pre name="code" class="c++">asf</pre></p>', toHTML(u'[c++]asf[/c++]'))
-		return
 		self.assertEquals(u'<p>a</p>', toHTML(u'a'))
 		self.assertEquals(u'a', toHTML(u'a', True))
 		self.assertEquals(u'<p>ab</p>', toHTML(u'ab'))
@@ -107,6 +105,7 @@ class WikiSyntaxTestCase(unittest.TestCase):
 		self.assertEquals(u'<p>x<code class="prettyprint">asf</code>y</p>', toHTML(u'x[code]asf[/code]y'))
 		self.assertEquals(u'<p><code class="prettyprint">asf</code><code class="prettyprint">xyz</code></p>', toHTML(u'[code]asf[/code][code]xyz[/code]'))
 		self.assertEquals(u'<p><pre class="prettyprint">asf</pre></p><p><pre class="prettyprint">xyz</pre></p>', toHTML(u'[code]asf[/code]\n\n[code]xyz[/code]'))
+		self.assertEquals(u'<p><pre name="code" class="c++">asf</pre></p>', toHTML(u'[c++]asf[/c++]'))
 
 
 
