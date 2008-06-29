@@ -1,0 +1,9 @@
+{% trans "Outras opções" %}:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="private" {% if form.private %}checked{% endif %} /> {% trans "Página privada" %} <i>{% trans "(apenas o criador pode vê-la)" %}</i><br />
+
+<br />
+
+{% trans "Imagem de fundo" %}: {% if form.bkg %}<a href="{{ form.bkg.getURL }}">{{ form.bkg.file.name }}</a> <input type="hidden" name="delete_bkg" id="delete_bkg" value=""><input type="image" src="/icons/delete.png" onclick="javascript: document.getElementById('delete_bkg').value='true';" />{% endif %}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;{% trans "Mudar para" %}: <input type="file" name="bkg_file" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="bkg_static" {% if form.bkg_static %}checked{% endif %} /> {% trans "Estática" %} <i>{% trans "(a imagem não se meche com a página)" %}</i><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="bkg_repeat" {% if form.bkg_repeat %}checked{% endif %} /> {% trans "Repetida" %}<br />

@@ -13,6 +13,38 @@ import datetime
 import os
 import wikisyntax
 import wsgiref.handlers
+import urllib
+
+
+
+class File(db.Model):
+	name = db.StringProperty(multiline=False)
+	content = db.BlobProperty()
+	author = db.UserProperty()
+	date = db.DateTimeProperty(auto_now_add=True)
+	contentType = db.StringProperty(multiline=False)
+	width = db.IntegerProperty()
+	height = db.IntegerProperty()
+
+	def load(id):
+		return db.get(db.Key(id))
+	load = staticmethod(load)
+	
+	def id(self):
+		return str(self.key())
+
+	def isAuthor(self):
+		return self.author and self.author == users.get_current_user()
+
+
+
+class Background(db.Model):
+	file = db.Reference(File)
+	static = db.BooleanProperty()
+	repeat = db.BooleanProperty()
+	
+	def getURL(self):
+		return self.file.getURL()
 
 
 
@@ -22,10 +54,15 @@ class Page(db.Model):
 	author = db.UserProperty()
 	dateCreated = db.DateTimeProperty(auto_now_add=True)
 	private = db.BooleanProperty()
-		
+	background = db.Reference(Background)
+	
 	def __comments(self):
 		return list(self.comment_set.order('date'))
 	comments = property(fget=__comments)
+	
+	def __attachments(self):
+		return list(self.attachment_set.order('date'))
+	attachments = property(fget=__attachments)
 
 	def load(id):
 		return db.get(db.Key(id))
@@ -39,11 +76,16 @@ class Page(db.Model):
 	
 	def displayableType(self):
 		if self.type == 'list':
-			return t('List')
+			return t('Lista de compras')
 		elif self.type == 'wiki':
-			return t('Wiki Page')
+			return t('Página wiki')
 		elif self.type == 'counter':
 			return t('Counter')
+		elif self.type == 'todo':
+			return t('Lista de coisas a fazer')
+	
+	def getURL(self):
+		return '/' + self.type + '/' + self.id()
 
 
 class Comment(db.Model):
@@ -61,6 +103,15 @@ class Comment(db.Model):
 
 	def isAuthor(self):
 		return self.author and self.author == users.get_current_user()
+
+
+class Attachment(File):
+	page = db.Reference(Page)
+	
+	def getURL(self):
+		return '/file/' + self.page.id() + '/' + self.name
+
+
 
 
 class BaseNewPage(BasePage):
@@ -95,6 +146,27 @@ class BaseNewPage(BasePage):
 	def post(self):
 		BasePage.post(self)
 		self.createMenus()
+
+	def handleBackground(self, form, page):
+		if form.bkg_file:
+			file = Attachment()
+			file.name = form.bkg_file.file_name
+			file.content = form.bkg_file.file_data
+			file.contentType = form.bkg_file.content_type
+			file.width = form.bkg_file.width
+			file.height = form.bkg_file.height
+			file.author = users.get_current_user()
+			file.page = page
+			file.put()
+			
+			bkg = Background()
+			bkg.file = file
+			bkg.static = form.bkg_static
+			bkg.repeat = form.bkg_repeat
+			bkg.put()
+			
+			page.background = bkg
+			page.put()
 
 
 class BaseViewPage(BasePage):
@@ -143,5 +215,67 @@ class BaseViewPage(BasePage):
 	def render(self, html, **keywords):
 		keywords['page'] = self.page
 		BasePage.render(self, html, **keywords)
+		
+	def handleBackground(self, form):
+		if form.bkg_file:
+			if self.page.background and self.page.background.file:
+				file = self.page.background.file
+			else:
+				file = Attachment()
+			file.name = form.bkg_file.file_name
+			file.content = form.bkg_file.file_data
+			file.contentType = form.bkg_file.content_type
+			file.width = form.bkg_file.width
+			file.height = form.bkg_file.height
+			file.author = users.get_current_user()
+			file.page = self.page
+			file.put()
+			
+			if self.page.background:
+				bkg = self.page.background
+			else:
+				bkg = Background()
+			bkg.file = file
+			bkg.static = form.bkg_static
+			bkg.repeat = form.bkg_repeat
+			bkg.put()
+			
+			if not self.page.background:
+				self.page.background = bkg
+				self.page.put()
+		
+		elif self.page.background:
+			bkg = self.page.background
+			bkg.static = form.bkg_static
+			bkg.repeat = form.bkg_repeat
+			bkg.put()
 
 
+
+class AttachmentHandler(webapp.RequestHandler):
+	URL = '/file/(.+)/(.+)'
+
+	def load(self, id):
+		page = Page.load(id)
+		
+		if page and not page.isAuthor() and page.private:
+			page = None
+		
+		if not page:
+			self.error(404)
+
+		return page
+
+	def get(self, *groups):
+		self.page = self.load(groups[0])
+		if not self.page:
+			return
+		
+		filename = urllib.unquote(urllib.unquote(groups[1]))
+		for file in self.page.attachments:
+			if file.name == filename:
+				self.response.headers['Content-Type'] = str(file.contentType)
+				self.response.out.write(file.content)
+				return
+		
+		self.error(404)

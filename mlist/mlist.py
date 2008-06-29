@@ -10,6 +10,7 @@ from list import *
 from recaptcha.client import captcha
 from trans import *
 from wiki import *
+from todo import *
 import cgi
 import datetime
 import os
@@ -27,10 +28,14 @@ class MyStuffPage(BasePage):
 		if not users.get_current_user():
 			self.err(t('Apenas usuários logados podem ver suas páginas'))
 		else:
-			for p in MList.gql('WHERE author = :1 ORDER BY dateCreated DESC', users.get_current_user()):
+			for p in MList.gql('WHERE author = :1', users.get_current_user()):
 				pages.append(p)
-			for p in Wiki.gql('WHERE author = :1 ORDER BY dateCreated DESC', users.get_current_user()):
+			for p in Wiki.gql('WHERE author = :1', users.get_current_user()):
 				pages.append(p)
+			for p in ToDo.gql('WHERE author = :1', users.get_current_user()):
+				pages.append(p)
+				
+		pages.sort(key=lambda x: x.dateCreated, reverse=True)
 
 		if len(pages) <= 0:
 			pages = None
@@ -57,10 +62,10 @@ class MyStuffPage(BasePage):
 		
 class NewPage(BaseNewPage):
 	URL = '/new'
-	title = t('Nova página')
 		
 	def get(self):
 		BaseNewPage.get(self)
+		self.title = t('Nova página')
 		self.render('new.html')
 
 		
@@ -135,6 +140,7 @@ application = webapp.WSGIApplication([
   (MainPage.URL, MainPage),
   (AboutPage.URL, AboutPage),
   (MyStuffPage.URL, MyStuffPage),
+  (AttachmentHandler.URL, AttachmentHandler),
   (NewPage.URL, NewPage),
   (NewList.URL, NewList),
   (EditList.URL, EditList),
@@ -142,6 +148,9 @@ application = webapp.WSGIApplication([
   (NewWiki.URL, NewWiki),
   (EditWiki.URL, EditWiki),
   (ViewWiki.URL, ViewWiki),
+  (NewToDo.URL, NewToDo),
+  (EditToDo.URL, EditToDo),
+  (ViewToDo.URL, ViewToDo),
   (EditPage.URL, EditPage),
   (ViewPage.URL, ViewPage),
 ], debug=DEBUG)

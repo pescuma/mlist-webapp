@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from getimageinfo import *
 from google.appengine.api import users
-from google.appengine.ext import db
-from google.appengine.ext import webapp
+from google.appengine.ext import db, webapp
 from google.appengine.ext.webapp import template
+from recaptcha.client import captcha
+from trans import *
 import cgi
 import datetime
 import os
-import wsgiref.handlers
-from recaptcha.client import captcha
 import wikisyntax
-from trans import *
+import wsgiref.handlers
 
 
 DEBUG = (os.environ['SERVER_NAME'] == 'localhost')
@@ -48,6 +48,9 @@ class Field:
 			setattr(self, kw, keywords[kw])
 
 class Form:
+	pass
+
+class FormFile:
 	pass
 
 class BasePage(webapp.RequestHandler):
@@ -105,14 +108,15 @@ class BasePage(webapp.RequestHandler):
 		self.infos.append(info)
 		
 	def form(self, fieldName):
-		val = self.request.get(fieldName)
-		if hasattr(val, 'filename'):
-			file = object()
+		val = self.request.POST.get(fieldName, None)
+		if not val is None and hasattr(val, 'filename') and val.filename:
+			file = FormFile()
 			file.file_name = val.filename
 			file.file_data = val.file.read()
+			file.content_type, file.width, file.height = getImageInfo(file.file_data)
 			return file
 		else:
-			return val.strip(' \t\r\n')
+			return self.request.get(fieldName).strip(' \t\r\n')
 		
 	def formField(self, fieldName, fieldType):
 		val = self.form(fieldName)
@@ -143,7 +147,7 @@ class BasePage(webapp.RequestHandler):
 		
 		return val
 	
-	def getForm(self, *props):
+	def getForm(self, *props, **keywords):
 		fields = dict()
 		for prop in props:
 			fields[prop.name] = prop
@@ -154,12 +158,13 @@ class BasePage(webapp.RequestHandler):
 			if field.max:
 				val = val[:field.max]
 			setattr(form, field.name, val)
-			
-		for name in self.request.POST:
-			val = self.request.POST.get(name)
-			if hasattr(form, name):
-				continue
-			setattr(form, name, self.form(name))
+		
+		if not keywords.has_key('strict') or not keywords['strict']:
+			for name in self.request.POST:
+				val = self.request.POST.get(name)
+				if hasattr(form, name):
+					continue
+				setattr(form, name, self.form(name))
 		
 		# Validate
 		for field in props:
@@ -215,7 +220,7 @@ class BasePage(webapp.RequestHandler):
 			for l in txt:
 				self.response.out.write('<br /> - ' + cgi.escape(l));
 		else:
-			self.response.out.write(cgi.escape(txt));
+			self.response.out.write(cgi.escape(str(txt)));
 
 
 	
@@ -229,7 +234,7 @@ class MainPage(BasePage):
 		
 		out = ''
 		if DEBUG:
-			for k,v in os.environ.iteritems():
+			for k, v in os.environ.iteritems():
 				out += k + ' : ' + v + '<br>'
 		
 		self.render(self.TEMPLATE, env = out)		

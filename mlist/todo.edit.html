@@ -9,21 +9,28 @@
 				<h1><input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em; width: 100%" /></h1>
 				<hr>
 				<br>
+				<h2 class="alt"><textarea name="text" id="text" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea></h2>
 			
 				<span class="large">
-					<textarea name="text" id="text" rows="40" cols="40" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea>
+					Adicionar tarefas na lista (uma por linha):<br>
+					<textarea name="items" id="items" rows="5" cols="40" style="font-size: 1em; width: 100%">{{ form.items|escape }}</textarea>
 					
 					<br />
 					<br />
 					
 					{% include "page.edit.html" %}
-										
+					
 					<br />
 				</span>
 			
 				<input type="hidden" name="edit" value="1">
 				<input type="submit" value="{% trans 'Salvar' %}" />
 				</form>
+				
+				<br />
+				<br />
+				
+				{% include "todo.items.html" %}
 				
 			</td>
 			<td style="width:200px; vertical-align:top;">

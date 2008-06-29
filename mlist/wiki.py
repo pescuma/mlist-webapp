@@ -44,10 +44,13 @@ class NewWiki(BaseNewPage):
 	def post(self):
 		BaseNewPage.post(self)
 		
-		form = self.getForm(Field('title', max=500), Field('private', type='boolean'))
+		form = self.getForm(Field('title', max=500), Field('private', type='boolean'), \
+						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
 		if len(form.title) <= 0:
 			self.err(t('O Nome da página não pode estar em branco'))
+		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
+			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 		
 		captchaError = self.getCaptchaError()
 		
@@ -62,7 +65,9 @@ class NewWiki(BaseNewPage):
 		wiki.author = users.get_current_user()
 		wiki.put()
 		
-		self.redirect('/wiki/' + wiki.id())
+		self.handleBackground(form, wiki)
+		
+		self.redirect(wiki.getURL())
 
 
 class ViewWiki(BaseViewPage):
@@ -109,6 +114,11 @@ class EditWiki(ViewWiki):
 		form.text = self.page.text
 		form.private = self.page.private
 		
+		if self.page.background:
+			form.bkg = self.page.background
+			form.bkg_static = self.page.background.static
+			form.bkg_repeat = self.page.background.repeat
+		
 		self.renderForm(form)
 		
 	def post(self, *groups):
@@ -119,9 +129,14 @@ class EditWiki(ViewWiki):
 			self.show()
 			return
 		
-		form = self.getForm(Field('title', desc='O título', max=500, required=True), \
-						    Field('private', type='boolean'))
+		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
+						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
+					
+		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
+			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
+
 		if len(self.errors) > 0:
+			form.bkg = self.page.background
 			self.renderForm(form)
 			return
 			
@@ -129,6 +144,9 @@ class EditWiki(ViewWiki):
 		self.page.text = form.text
 		self.page.private = form.private
 		self.page.put()
-		
-		self.redirect('/wiki/' + self.page.id())
+	
+		self.handleBackground(form)
+
+		self.redirect(self.page.getURL())
+
 

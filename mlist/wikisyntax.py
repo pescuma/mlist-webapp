@@ -92,6 +92,17 @@ class YouTubeFormater:
 		return u'<object width="425" height="355"><param name="movie" value="http://youtube.com/v/' + id + u'"></param><param name="wmode" value="transparent"></param><embed src="http://youtube.com/v/' + id + u'" type="application/x-shockwave-flash" wmode="transparent" width="425" height="355"></embed></object>'
 
 
+class VimeoURLFormater:
+	_BASE_URLS = [ u'http://www.vimeo.com/', u'http://vimeo.com/' ]
+	
+	def handle(self, word):
+		id = _getTextAfter(word, self._BASE_URLS)
+		if not id:
+			return None
+		id = _removeOtherParams(id)
+		return u'<object width="400" height="300"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="never" /><param name="movie" value="http://www.vimeo.com/moogaloop.swf?clip_id=' + id + u'&amp;server=www.vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://www.vimeo.com/moogaloop.swf?clip_id=' + id + u'&amp;server=www.vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="never" width="400" height="300"></embed></object>'
+
+
 class FlickrFormater:
 	_BASE_URLS = [ u'http://www.flickr.com/slideShow/', u'http://flickr.com/slideShow/' ]
 	
@@ -347,7 +358,8 @@ class WikiParser:
 				   Formater(u'++', u'<span class="added">', u'</span>'), \
 				   Formater(u'--', u'<span class="removed">', u'</span>') ]
 	_urlFormaters = [ ImageURLFormater(), AnimotoURLFormater(), PicasaURLFormater(), \
-					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser() ]
+					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser(), \
+					  VimeoURLFormater() ]
 	
 	
 	def registerURLFormater(urlFormater):

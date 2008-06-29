@@ -10,7 +10,7 @@
 		<ul class="large">
 			{% for page in pages %}
 				<li>
-					<a href="/{{ page.type }}/{{ page.id }}">{{ page.title|wikiSL }}</a> <span class="alt"> : {{ page.displayableType|escape }} ( criada em {{ page.dateCreated|date:"d/m/Y g:i a" }} )</span>
+					<a href="/{{ page.type }}/{{ page.id }}">{{ page.title|wikiSL }}</a> <span class="alt"> : {{ page.displayableType|escape }} ( {% trans "criada em" %} {{ page.dateCreated|date:"d/m/Y g:i a" }} )</span>
 					
 					<span style="margin-left:40px;"> 
 						<form method="post" style="display: inline"><input type="hidden" name="delete" value="{{ page.id }}"><input type="image" src="/icons/delete.png" /></form> 

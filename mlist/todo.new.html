@@ -6,12 +6,14 @@
 		<tr>
 			<td>
 				<form action="" method="post" style="margin-bottom:60px" enctype="multipart/form-data">
-				<h1>{% trans "Nome da página" %}: <input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em;" /></h1>
+				<h1>{% trans "Nome da lista" %}: <input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em;" /></h1>
 				<hr>
 				<br>
+				<h2 class="alt">{% trans "Descrição da lista" %}:<br><textarea name="text" id="text" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea></h2>
 				
 				<span class="large">
-					<textarea name="text" id="text" rows="40" cols="40" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea>
+					{% trans "Tarefas (uma por linha)" %}:<br />
+					<textarea name="items" id="items" rows="20" cols="40" style="font-size: 1em; width: 100%">{{ form.items|escape }}</textarea>
 					
 					<br />
 					<br />
