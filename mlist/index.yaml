@@ -16,7 +16,7 @@ indexes:
   - name: page
   - name: date
 
-# Used 596 times in query history.
+# Used 598 times in query history.
 - kind: Comment
   properties:
   - name: page

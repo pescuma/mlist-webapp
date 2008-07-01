@@ -106,6 +106,7 @@ class WikiSyntaxTestCase(unittest.TestCase):
 		self.assertEquals(u'<p><code class="prettyprint">asf</code><code class="prettyprint">xyz</code></p>', toHTML(u'[code]asf[/code][code]xyz[/code]'))
 		self.assertEquals(u'<p><pre class="prettyprint">asf</pre></p><p><pre class="prettyprint">xyz</pre></p>', toHTML(u'[code]asf[/code]\n\n[code]xyz[/code]'))
 		self.assertEquals(u'<p><pre name="code" class="c++">asf</pre></p>', toHTML(u'[c++]asf[/c++]'))
+		self.assertEquals(u'<p><div name="gmap" class="gmap" style="width: 500px; height: 300px">GPS:-27.59796,-48.548127,7</div></p>', toHTML(u'http://maps.google.com/?ie=UTF8&ll=-27.59796,-48.548127&spn=4.53634,9.624023&z=7'))
 
 
 

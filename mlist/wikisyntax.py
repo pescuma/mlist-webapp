@@ -6,7 +6,7 @@ import urllib
 
 
 def isURLChar(c):
-	return c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./\\-_?=&%@#'
+	return c in u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.,/\\-_?=&%@#'
 
 def isURL(word):
 	if len(word) < 11:
@@ -36,6 +36,17 @@ def _removeOtherParams(text):
 		text = text[:pos]
 	return text
 
+def _getParameter(url, param):
+	pos = url.find('?')
+	if pos < 0:
+		return None
+	url = url[pos+1:]
+	pos = url.find(param + '=')
+	if pos < 0:
+		return None
+	url = url[pos+len(param)+1:]
+	return _removeOtherParams(url)
+	
 def _getTextAfter(word, textList):
 	for base in textList:
 		if word.startswith(base):
@@ -215,27 +226,68 @@ class Formater:
 		return None
 
 
+class MapLink:
+	def handle(self, url, text = None):
+		if not url.startswith(u'http://maps.google.'):
+			return None
+		
+		ll = _getParameter(url, u'll')
+		if not ll:
+			return None
+		 
+		z = _getParameter(url, u'z')
+		if z:
+			ll += ',' + z
+		
+		if text:
+			return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">GPS:' + cgi.escape(ll) + u'<br/>Text:' + toHTML(text, True) + u'</div>'
+		else:
+			return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">GPS:' + cgi.escape(ll) + u'</div>'
+	
+	def createLink(self, url, text):
+		if url.startswith(u'map:'):
+			if text:
+				return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'<br/>Text:' + toHTML(text, True) + u'</div>'
+			else:
+				return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'</div>'
+		
+		
+		return self.handle(url, text)
+
+
+class SimpleLink:
+	def createLink(self, url, text):
+		if not isURL(url):
+			return None
+		
+		if text:
+			text = toHTML(text, True)
+		else:
+			text = cgi.escape(url)
+		
+		return u'<a href="' + url + u'">' + text + u'</a>'
+
+
 class LinkFormater:
+	_handlers = [ MapLink(), SimpleLink() ]
+	
 	def start(self):
 		return u''
 
 	def finish(self):
 		return u''
-
+	
 	def handle(self, parser):
 		if parser.getChars(2) != '[[':
 			return None
 		if parser.getChars(-1) not in ' \t\r\n.?!\'":()':
 			return None
-		
+
 		i = 2
 		url = u''
-		while parser.getChar(i) and isURLChar(parser.getChar(i)):
+		while parser.getChar(i) and parser.getChar(i) not in '\r\n[]':
 			url += parser.getChar(i)
 			i += 1
-		
-		if not isURL(url):
-			return None
 		
 		if parser.getChar(i) != ']':
 			return None
@@ -256,14 +308,17 @@ class LinkFormater:
 			return None
 		i += 1
 		
+		output = None
+		for handler in self._handlers:
+			output = handler.createLink(url, text)
+			if output:
+				break
+		
+		if not output:
+			return None
+		
 		parser.eat(i)
-		
-		if text:
-			text = toHTML(text, True)
-		else:
-			text = cgi.escape(url)
-		
-		return '<a href="' + url + '">' + text + '</a>'
+		return output
 
 
 class CodePretiffyTag:
@@ -359,7 +414,7 @@ class WikiParser:
 				   Formater(u'--', u'<span class="removed">', u'</span>') ]
 	_urlFormaters = [ ImageURLFormater(), AnimotoURLFormater(), PicasaURLFormater(), \
 					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser(), \
-					  VimeoURLFormater() ]
+					  VimeoURLFormater(), MapLink() ]
 	
 	
 	def registerURLFormater(urlFormater):

@@ -66,7 +66,7 @@ _EN = {
 	'Repetida' : 'Repeat',
 	'Mudar para' : 'Change to',  
 	'A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG' : 'The background image have to be a GIF, PNG or JPEG',
-	'Nova lista de coisas a fazer' : 'New To-Do List',
+	'Nova lista de coisas a fazer' : 'New to-do list',
 	'Cria uma nova página com uma lista de tarefas a serem realizadas' : 'Creates a new page with a list of tasks to be fullfiled',
 	'Tarefas (uma por linha)' : 'To-do items (one per line)', 
 	'Você não pode desfazer esta tarefa, pois ela não foi feita ainda' : 'You can\'t undo this task, because it was not marked as done yet',
