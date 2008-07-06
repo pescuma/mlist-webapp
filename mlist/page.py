@@ -47,7 +47,6 @@ class Background(db.Model):
 		return self.file.getURL()
 
 
-
 class Page(db.Model):
 	title = db.StringProperty(multiline=False)
 	text = db.TextProperty()
@@ -116,7 +115,7 @@ class Attachment(File):
 
 class BaseNewPage(BasePage):
 	def createMenus(self):
-		self.left_menus = [ Menu(t('Cancel'), '/') ]
+		self.left_menus = [ Menu(t('Salvar'), 'javascript: document.mainForm.submit();'), Menu(t('Cancel'), '/') ]
 		
 		if not users.get_current_user():
 			self.warn(cgi.escape(t('Você não está logado. As páginas criadas não poderão ' + \

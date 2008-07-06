@@ -104,13 +104,11 @@ class NewList(BaseListPage, BaseNewPage):
 		BaseNewPage.post(self)
 		self.title = t('Nova lista de compras')
 		
-		form = self.getForm(Field('title', max=500), Field('private', type='boolean'), \
+		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
 						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
 		in_items = self.getItemNames(form.items)
 		
-		if len(form.title) <= 0:
-			self.err(t('O Nome da lista não pode estar em branco'))
 		if len(in_items) <= 0:
 			self.err(t('A lista de itens não pode estar em branco'))
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
@@ -227,6 +225,7 @@ class EditList(ViewList):
 	
 	def renderForm(self, form):
 		self.left_menus.insert(0, Menu(t('Cancel'), '/list/' + self.page.id()))
+		self.left_menus.insert(0, Menu(t('Salvar'), 'javascript: document.mainForm.submit();'))
 		self.title = t('Editando') + ' ' + wikisyntax.toHTML(self.page.title, False)
 		self.render('list.edit.html', form=form)
 	

@@ -1,0 +1,35 @@
+/* To get icons on the right side of links, replace all occurences of `left' through `right' */
+
+/* 
+a[href^="http:"],a[href^="https:"] {background: url(/icons/link.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href^="http://mlist.appspot.com"] {background-image:none !important; padding-left:0px !important;}
+*/
+
+/* Use whenever you don't want an icon to appear */
+.exempt {background-image:none !important; padding:0px !important;}
+
+/* Use whenever you want to define an external link explicitly */
+.external {background: url(/icons/link.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+
+a[href^="mailto:"] {background: url(/icons/email.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+
+a[href^="aim:"],a[href^="icq:"],a[href^="msn:"] {background: url(/icons/group.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+
+a[href^="http://maps.google.com"] {background: url(/icons/map.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+
+a[href$=".rss"], a[href$=".rdf"] {background: url(/icons/feed.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".jpg"],a[href$=".jpeg"],a[href$=".gif"],a[href$=".png"] {background: url(/icons/img.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".pdf"] {background: url(/icons/pdf.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".xls"] {background: url(/icons/xls.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".doc"] {background: url(/icons/word.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".c"] {background: url(/icons/c.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".cpp"] {background: url(/icons/cpp.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".h"] {background: url(/icons/h.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".php"] {background: url(/icons/php.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".txt"] {background: url(/icons/txt.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".zip"] {background: url(/icons/zip.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".mp3"] {background: url(/icons/mp3.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".avi"] {background: url(/icons/avi.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+
+
+.header a {background-image:none !important; padding:0px !important;}

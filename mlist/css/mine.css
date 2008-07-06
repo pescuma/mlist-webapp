@@ -1,0 +1,33 @@
+html, body {
+  height:100%;
+  width:100%;
+}
+
+.header {
+  border-bottom:1px solid #C9D7F1; 
+  height: 22px;
+  width: 100%;
+  position:fixed;
+  left:0;
+  top:0;
+  background:#FFFFFF;
+}
+
+.content {
+  padding-top:52px;
+  width:100%;
+  margin:0 auto;
+}
+
+div.gmap { 
+  display: block; 
+  vertical-align: middle; 
+  margin: 5px; 
+  line-height:1.4em;
+  font-style: normal;
+}
+
+h2.alt div.gmap { 
+  line-height:1em;
+  font-size: 75%;
+}

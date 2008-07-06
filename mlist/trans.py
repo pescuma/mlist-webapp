@@ -69,6 +69,7 @@ _EN = {
 	'Nova lista de coisas a fazer' : 'New to-do list',
 	'Cria uma nova página com uma lista de tarefas a serem realizadas' : 'Creates a new page with a list of tasks to be fullfiled',
 	'Tarefas (uma por linha)' : 'To-do items (one per line)', 
+	'Adicionar tarefas (uma por linha)' : 'Add to-do items (one per line)', 
 	'Você não pode desfazer esta tarefa, pois ela não foi feita ainda' : 'You can\'t undo this task, because it was not marked as done yet',
 	'O título' : 'Title', 
 	'Lista de coisas a fazer' : 'To-do list',
@@ -79,6 +80,9 @@ _EN = {
 	'Correção do modo de armazenamento, listas privadas, começo da tradução do site' : 'Fix for storage, private lists, start of site translation',
 	'criada em' : 'created at', 
 	'Anonimo' : 'Anonimous', 
+	'Privacidade' : 'Privacy',
+	'Link permanente' : 'Permalink',
+	'Usar um link permanente' : 'Use a permalink', 
 }
 
 
@@ -148,6 +152,7 @@ _PT_BR = {
 	'Nova lista de coisas a fazer' : 'Nova lista de coisas a fazer',
 	'Cria uma nova página com uma lista de tarefas a serem realizadas' : 'Cria uma nova página com uma lista de tarefas a serem realizadas',
 	'Tarefas (uma por linha)' : 'Tarefas (uma por linha)', 
+	'Adicionar tarefas (uma por linha)' : 'Adicionar tarefas na lista (uma por linha)', 
 	'Você não pode desfazer esta tarefa, pois ela não foi feita ainda' : 'Você não pode desfazer esta tarefa, pois ela não foi feita ainda',
 	'O título' : 'O título', 
 	'Lista de coisas a fazer' : 'Lista de coisas a fazer',
@@ -157,7 +162,10 @@ _PT_BR = {
 	'Outros tipos de página (wiki), mostra links para sites como mídia (Animoto, Picasa, etc), comentários' : 'Outros tipos de página (wiki), mostra links para sites como mídia (Animoto, Picasa, etc), comentários',
 	'Correção do modo de armazenamento, listas privadas, começo da tradução do site' : 'Correção do modo de armazenamento, listas privadas, começo da tradução do site',
 	'criada em' : 'criada em',
-	'Anonimo' : 'Anonimo',  
+	'Anonimo' : 'Anonimo',
+	'Privacidade' : 'Privacidade',
+	'Link permanente' : 'Link permanente',
+	'Usar um link permanente' : 'Usar um link permanente', 
 }
 
 

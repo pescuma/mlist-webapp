@@ -44,11 +44,9 @@ class NewWiki(BaseNewPage):
 	def post(self):
 		BaseNewPage.post(self)
 		
-		form = self.getForm(Field('title', max=500), Field('private', type='boolean'), \
+		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
 						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
-		if len(form.title) <= 0:
-			self.err(t('O Nome da página não pode estar em branco'))
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 		
@@ -101,6 +99,7 @@ class EditWiki(ViewWiki):
 	
 	def renderForm(self, form):
 		self.left_menus.insert(0, Menu(t('Cancel'), '/wiki/' + self.page.id()))
+		self.left_menus.insert(0, Menu(t('Salvar'), 'javascript: document.mainForm.submit();'))
 		self.title = t('Editando') + ' ' + wikisyntax.toHTML(self.page.title, False)
 		self.render('wiki.edit.html', form=form)
 	

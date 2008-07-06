@@ -12,6 +12,23 @@
 
 	{% include "todo.items.html" %}
 	
+	{% if page.isAuthor %}
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		
+		<form action="" method="post">
+			<span class="large">
+				{% trans "Adicionar tarefas (uma por linha)" %}:<br>
+				<textarea name="items" id="items" rows="5" cols="40" style="font-size: 1em; width: 100%">{{ form.items|escape }}</textarea>
+				<input type="submit" value="{% trans 'Adicionar' %}" />
+			</span>
+		</form>
+	{% endif %}
+	
 	{% include "comments.html" %}
 	
 {% endblock %}

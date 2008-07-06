@@ -251,8 +251,8 @@ class MapLink:
 			else:
 				return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'</div>'
 		
-		
-		return self.handle(url, text)
+		return None
+#		return self.handle(url, text)
 
 
 class SimpleLink:
