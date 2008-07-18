@@ -64,6 +64,7 @@ class NewWiki(BaseNewPage):
 		wiki.put()
 		
 		self.handleBackground(form, wiki)
+		self.handleAttachments(form, wiki)
 		
 		self.redirect(wiki.getURL())
 
@@ -121,16 +122,25 @@ class EditWiki(ViewWiki):
 		self.renderForm(form)
 		
 	def post(self, *groups):
-		BaseViewPage.post(self, *groups)
+		done = BaseViewPage.post(self, *groups)
 		if not self.page:
 			return
 		if not self.page.isAuthor():
 			self.show()
 			return
-		
+				
+		if not self.formField('edit', 'boolean'):
+			self.show()
+			return
+
 		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
 						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
-					
+		
+		if done:
+			form.bkg = self.page.background
+			self.renderForm(form)
+			return
+		
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 
@@ -145,6 +155,7 @@ class EditWiki(ViewWiki):
 		self.page.put()
 	
 		self.handleBackground(form)
+		self.handleAttachments(form)
 
 		self.redirect(self.page.getURL())
 

@@ -3,7 +3,10 @@
 
 import cgi
 import urllib
+from wikisyntax_images import *
 
+LEFT_ALIGN = 1
+RIGHT_ALIGN = 2
 
 def isURLChar(c):
 	return c in u'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.,/\\-_?=&%@#'
@@ -244,19 +247,25 @@ class MapLink:
 		else:
 			return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">GPS:' + cgi.escape(ll) + u'</div>'
 	
-	def createLink(self, url, text):
-		if url.startswith(u'map:'):
-			if text:
-				return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'<br/>Text:' + toHTML(text, True) + u'</div>'
-			else:
-				return u'<div name="gmap" class="gmap" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'</div>'
-		
-		return None
+	def createLink(self, url, text, modifiers):
+		if not url.startswith(u'map:'):
+			return None
+				
+		cls = ''
+		if modifiers & LEFT_ALIGN:
+			cls = ' left'
+		elif modifiers & RIGHT_ALIGN:
+			cls = ' right'
+
+		if text:
+			return u'<div name="gmap" class="gmap' + cls + '" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'<br/>Text:' + toHTML(text, True) + u'</div>'
+		else:
+			return u'<div name="gmap" class="gmap' + cls + '" style="width: 500px; height: 300px">' + cgi.escape(url[4:]) + u'</div>'
 #		return self.handle(url, text)
 
 
 class SimpleLink:
-	def createLink(self, url, text):
+	def createLink(self, url, text, modifiers):
 		if not isURL(url):
 			return None
 		
@@ -265,12 +274,42 @@ class SimpleLink:
 		else:
 			text = cgi.escape(url)
 		
-		return u'<a href="' + url + u'">' + text + u'</a>'
+		cls = ''
+		if modifiers & LEFT_ALIGN:
+			cls = ' class="left"'
+		elif modifiers & RIGHT_ALIGN:
+			cls = ' class="right"'
+		
+		return u'<a href="' + url + u'"' + cls + '>' + text + u'</a>'
+
+
+class ImageLink:
+	def createLink(self, url, text, modifiers):
+		if not wikisyntax_images.has_key(url):
+			return None
+		
+		if text:
+			text = toHTML(text, True)
+		else:
+			text = cgi.escape(url)
+		
+		cls = ''
+		if modifiers & LEFT_ALIGN:
+			cls = ' class="left"'
+		elif modifiers & RIGHT_ALIGN:
+			cls = ' class="right"'
+		
+		return u'<img src="' + wikisyntax_images[url] + u'" alt="' + text + '"' + cls + '/>'
 
 
 class LinkFormater:
-	_handlers = [ MapLink(), SimpleLink() ]
-	
+	_handlers = [ MapLink(), ImageLink(), SimpleLink() ]
+		
+	def registerLinkHander(linkHandler):
+		LinkFormater._handlers.insert(len(LinkFormater._handlers) - 1, linkHandler)
+	registerLinkHander = staticmethod(registerLinkHander)
+
+
 	def start(self):
 		return u''
 
@@ -308,9 +347,18 @@ class LinkFormater:
 			return None
 		i += 1
 		
+		
+		modifiers = 0
+		if url.startswith('<<'):
+			modifiers = modifiers | LEFT_ALIGN
+			url = url[2:]
+		if url.endswith('>>'):
+			modifiers = modifiers | RIGHT_ALIGN
+			url = url[:len(url)-2]
+		
 		output = None
 		for handler in self._handlers:
-			output = handler.createLink(url, text)
+			output = handler.createLink(url, text, modifiers)
 			if output:
 				break
 		
@@ -421,6 +469,11 @@ class WikiParser:
 		WikiParser._urlFormaters.append(urlFormater)
 	registerURLFormater = staticmethod(registerURLFormater)
 	
+	def registerLinkHander(linkHandler):
+		LinkFormater.registerLinkHander(linkHandler)
+	registerLinkHander = staticmethod(registerLinkHander)
+
+	
 	def __init__(self, text, oneLineOnly = False):
 		self._text = unicode(text)
 		self._len = len(self._text)
@@ -481,7 +534,8 @@ class WikiParser:
 		  return u''
 		ret = u''
 		if not self._inParagraph:
-			if self._lastNumEnters >= 4:
+			brs = (self._lastNumEnters - 2) / 2
+			for i in range(brs):
 				ret += u'<br />'
 			ret += u'<p>'
 		self._inParagraph = True

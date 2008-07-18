@@ -19,8 +19,11 @@ legend      { font-weight: bold; font-size:1.2em; }
 
 input.text, input.title,
 textarea, select {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin:0.5em 0;
   border:1px solid #bbb;
+  font-size: 1em; 
+  line-height: 1.2em; 
 }
 
 input.text:focus, input.title:focus,

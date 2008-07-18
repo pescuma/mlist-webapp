@@ -8,6 +8,13 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="bkg_repeat" {% if form.bkg_repeat %}checked{% endif %} /> {% trans "Repetida" %}<br />
 
 <br />
+
+{% trans "Anexos" %}: <br />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" name="attach1" size="30" /> {% trans "Nome"%}: <input type="text" name="attach1_name" id="attach1_name" style="font-size: 1em;" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" name="attach2" size="30" /> {% trans "Nome"%}: <input type="text" name="attach2_name" id="attach1_name" style="font-size: 1em;" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" name="attach3" size="30" /> {% trans "Nome"%}: <input type="text" name="attach3_name" id="attach1_name" style="font-size: 1em;" /><br />
+
+<br />
 <br />
 
 {% if captcha %}
@@ -16,3 +23,4 @@
 	<br />
 	<br />
 {% endif %}
+

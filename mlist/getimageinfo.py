@@ -1,5 +1,46 @@
 import StringIO
 import struct
+from zlib import decompressobj
+
+def getSWFSize(f):
+    magic, version, datasz = struct.unpack("<3s1B1L", f.read(8))
+    if ( magic != 'FWS' and magic != 'CWS' ) or datasz < 9:
+		raise "Invalid format"
+    datasz -= 8
+    if magic == 'FWS':
+        data = f.read(min(datasz, 32))
+    else:
+        d = decompressobj()
+        data = ''
+        while len( data ) < min(datasz, 32):
+            data += d.decompress(f.read(64))
+    data = struct.unpack('%dB' % len(data), data)
+    nbits = data[0] >> 3
+    coord = {}
+    q = 0
+    r = 5
+    for p in ('sx', 'ex', 'sy', 'ey'):
+        c = nbits
+        v = 0
+        while c > 8:
+            v <<= 8
+            v |= (data[q] << r) & 0xff
+            c -= 8
+            q += 1
+            v |= data[q] >> (8 - r)
+        m = min(c, 8)
+        v <<= m
+        r = m - (8 - r)
+        if r > 0:
+            v |= (data[q] << r) & 0xff
+            q += 1
+            v |= data[q] >> (8 - r)
+        else:
+            v |= (data[q] >> -r) & ((1 << m) - 1)
+            r = 8 + r
+        coord[p] = v
+    return int(float(coord['ex'] - coord['sx']) / 20), int(float(coord['ey'] - coord['sy']) / 20)
+
 
 def getImageInfo(data):
     data = str(data)
@@ -57,5 +98,14 @@ def getImageInfo(data):
             pass
         except ValueError:
             pass
+    
+    # handle SWF
+    elif (size >= 28) and data[:3] in ('FWS', 'CWS'):
+        try:
+	        width, height = getSWFSize(StringIO.StringIO(data))
+	        content_type = 'application/x-shockwave-flash'
+        except:
+	        pass
+
 
     return content_type, width, height

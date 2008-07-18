@@ -14,7 +14,7 @@ import os
 import wikisyntax
 import wsgiref.handlers
 import urllib
-
+import mlist
 
 
 class File(db.Model):
@@ -105,7 +105,17 @@ class Comment(db.Model):
 
 
 class Attachment(File):
+	BACKGROUND = 0
+	NORMAL = 1
+	
+	description = db.StringProperty(multiline=False)
+	type = db.IntegerProperty() 
 	page = db.Reference(Page)
+	
+	def getName(self):
+		if self.description:
+			return self.description
+		return self.name
 	
 	def getURL(self):
 		return '/file/' + self.page.id() + '/' + self.name
@@ -156,6 +166,7 @@ class BaseNewPage(BasePage):
 			file.height = form.bkg_file.height
 			file.author = users.get_current_user()
 			file.page = page
+			file.type = Attachment.BACKGROUND
 			file.put()
 			
 			bkg = Background()
@@ -166,6 +177,27 @@ class BaseNewPage(BasePage):
 			
 			page.background = bkg
 			page.put()
+
+	def handleAttachments(self, form, page):
+		for field_name in form.__dict__.keys():
+			if not field_name.startswith('attach'):
+				continue
+			field = getattr(form, field_name)
+			if not hasattr(field, 'file_name'):
+				continue
+			
+			file = Attachment()
+			file.name = field.file_name
+			if hasattr(form, field_name + '_name'):
+				file.description = getattr(form, field_name + '_name')
+			file.content = field.file_data
+			file.contentType = field.content_type
+			file.width = field.width
+			file.height = field.height
+			file.author = users.get_current_user()
+			file.page = page
+			file.type = Attachment.NORMAL
+			file.put()
 
 
 class BaseViewPage(BasePage):
@@ -183,17 +215,26 @@ class BaseViewPage(BasePage):
 
 		return page
 
+
 	def get(self, *groups):
 		BasePage.get(self)
 		self.page = self.load(self.TYPE, groups[0])
+		if not self.page:
+			return
+		
+		for attach in self.page.attachments:
+			mlist.attachments[attach.getName()] = attach 
 		
 		
 	def post(self, *groups):
 		BasePage.post(self)
 		self.page = self.load(self.TYPE, groups[0])
 		if not self.page:
-			return
+			return False
 		
+		for attach in self.page.attachments:
+			mlist.attachments[attach.getName()] = attach 
+
 		text = self.form('addCommentText')
 		if text:
 			comment = Comment()
@@ -210,6 +251,33 @@ class BaseViewPage(BasePage):
 					self.err(t("Apenas o criador de um comentário pode apagá-lo"))
 				else:
 					comment.delete()
+		
+		if self.form('delete_bkg'):
+			if self.page.background:
+				if not self.page.isAuthor():
+					self.err(t("Apenas o criador de uma imagem de fundo pode apagá-la"))
+				else:
+					if self.page.background.file:
+						self.page.background.file.delete()
+					self.page.background.delete()
+					self.page.background = None
+					self.page.put()
+			return True
+		
+		id = self.form('delete_attach') 
+		if id:
+			attach = Attachment.load(id)
+			if attach:
+				if not self.page.isAuthor():
+					self.err(t("Apenas o criador de um anexo pode apagá-lo"))
+				else:
+					del mlist.attachments[attach.getName()]
+					attach.delete()
+			return True
+		
+		return False
+
+	
 		
 	def render(self, html, **keywords):
 		keywords['page'] = self.page
@@ -248,6 +316,28 @@ class BaseViewPage(BasePage):
 			bkg.static = form.bkg_static
 			bkg.repeat = form.bkg_repeat
 			bkg.put()
+
+		
+	def handleAttachments(self, form):
+		for field_name in form.__dict__.keys():
+			if not field_name.startswith('attach'):
+				continue
+			field = getattr(form, field_name)
+			if not hasattr(field, 'file_name'):
+				continue
+			
+			file = Attachment()
+			file.name = field.file_name
+			if hasattr(form, field_name + '_name'):
+				file.description = getattr(form, field_name + '_name')
+			file.content = field.file_data
+			file.contentType = field.content_type
+			file.width = field.width
+			file.height = field.height
+			file.author = users.get_current_user()
+			file.page = self.page
+			file.type = Attachment.NORMAL
+			file.put()
 
 
 

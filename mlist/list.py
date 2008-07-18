@@ -23,6 +23,7 @@ import wsgiref.handlers
 
 class MList(Page):
 	type = 'list'
+	textAfter = db.TextProperty()
 	
 	def __items(self):
 		return list(self.mlistitem_set.order('order'))
@@ -123,6 +124,7 @@ class NewList(BaseListPage, BaseNewPage):
 		mlist = MList()
 		mlist.title = form.title
 		mlist.text = form.text
+		mlist.textAfter = form.text_after
 		mlist.private = form.private
 		mlist.author = users.get_current_user()
 		mlist.put()
@@ -130,6 +132,7 @@ class NewList(BaseListPage, BaseNewPage):
 		self.addItems(mlist, in_items)
 		
 		self.handleBackground(form, mlist)
+		self.handleAttachments(form, mlist)
 		
 		self.redirect(mlist.getURL())
 
@@ -237,8 +240,12 @@ class EditList(ViewList):
 		form = Form()
 		form.title = self.page.title
 		form.text = self.page.text
+		form.text_after = self.page.textAfter
 		form.private = self.page.private
 				
+		if not form.text_after:
+			form.text_after = ''
+		 
 		if self.page.background:
 			form.bkg = self.page.background
 			form.bkg_static = self.page.background.static
@@ -248,7 +255,7 @@ class EditList(ViewList):
 		
 	
 	def post(self, *groups):
-		BaseViewPage.post(self, *groups)
+		done = BaseViewPage.post(self, *groups)
 		if not self.page:
 			return
 		if not self.page.isAuthor():
@@ -263,20 +270,13 @@ class EditList(ViewList):
 		
 		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
 						  	Field('edit', type='boolean'), \
-						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'), \
-						    Field('delete_bkg', type='boolean'))
+						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
-		if form.delete_bkg:
-			if self.page.background:
-				if self.page.background.file:
-					self.page.background.file.delete()
-				self.page.background.delete()
-				self.page.background = None
-				self.page.put()
+		if done:
 			form.bkg = self.page.background
 			self.renderForm(form)
 			return
-	
+		
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 
@@ -287,12 +287,14 @@ class EditList(ViewList):
 			
 		self.page.title = form.title
 		self.page.text = form.text
+		self.page.textAfter = form.text_after
 		self.page.private = form.private
 		self.page.put()
 		
 		self.addItems(self.page, self.getItemNames(form.items))
 	
 		self.handleBackground(form)
+		self.handleAttachments(form)
 		
 		self.redirect(self.page.getURL())
 

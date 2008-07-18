@@ -3,19 +3,21 @@
 
 from framework import *
 from google.appengine.api import users
-from google.appengine.ext import db
-from google.appengine.ext import webapp
+from google.appengine.ext import db, webapp
 from google.appengine.ext.webapp import template
 from list import *
 from recaptcha.client import captcha
+from todo import *
 from trans import *
 from wiki import *
-from todo import *
 import cgi
 import datetime
 import os
 import wikisyntax
 import wsgiref.handlers
+
+
+attachments = dict()
 
 
 class MyStuffPage(BasePage):
@@ -134,6 +136,44 @@ class MListURLFormater:
 			return title 
 		else:
 			return u'<a href="' + word + '">' + title + u'</a>'
+
+
+class MListAttachementLinkHandler: 
+	def createLink(self, url, text, modifiers):
+		if not attachments.has_key(url):
+			return None
+		
+		attach = attachments[url]
+		url = attach.getURL() 
+		
+		if text:
+			text = toHTML(text, True)
+		else:
+			text = cgi.escape(attach.getName())
+		
+		cls = ''
+		if modifiers & wikisyntax.LEFT_ALIGN:
+			cls = ' class="left"'
+		elif modifiers & wikisyntax.RIGHT_ALIGN:
+			cls = ' class="right"'
+		
+		if self._isImage(attach):
+			return u'<img src="' + url + u'" alt="' + text + '"' + cls + '/>'
+		
+		if self._isFlash(attach):
+			return u'<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="' + \
+		 	   	   str(attach.width) + u'" height="' + str(attach.height) + u'"' + cls + u'><param name="movie" value="' + url + u'"><param name="quality" value="high"><param name="play" value="true">' + \
+		 	   	   u'<embed src="' + url + u'" quality="high" width="' + str(attach.width) + u'" height="' + str(attach.height) + u'" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">' + \
+		 	   	   u'</embed></object>'
+
+		return u'<a href="' + url + u'"' + cls + '>' + text + '</a>'
+
+	def _isImage(self, attach):
+		return attach.contentType.startswith('image/') 
+
+	def _isFlash(self, attach):
+		return attach.contentType == 'application/x-shockwave-flash' 
+
 		
 
 application = webapp.WSGIApplication([
@@ -158,6 +198,7 @@ application = webapp.WSGIApplication([
 webapp.template.register_template_library('templatefilters')
 
 wikisyntax.WikiParser.registerURLFormater(MListURLFormater())
+wikisyntax.WikiParser.registerLinkHander(MListAttachementLinkHandler())
 
 def main():
 	wsgiref.handlers.CGIHandler().run(application)

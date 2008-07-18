@@ -113,6 +113,9 @@ class BasePage(webapp.RequestHandler):
 			file = FormFile()
 			file.file_name = val.filename
 			file.file_data = val.file.read()
+			if len(file.file_data) > 10 * 1024 * 1024:
+				self.err('Os arquivos devem possuir no máximo 10MB')
+				return None
 			file.content_type, file.width, file.height = getImageInfo(file.file_data)
 			return file
 		else:

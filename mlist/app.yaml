@@ -18,5 +18,9 @@ handlers:
   static_files: icons/favicon.ico
   upload: icons/favicon.ico
      
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+
 - url: .*
   script: mlist.py

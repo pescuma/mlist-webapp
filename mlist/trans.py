@@ -12,7 +12,7 @@ _EN = {
 	'Log in' : 'Log in',
 	'Log out' : 'Log out',
 	'Bugs?' : 'Bugs?',  
-	'Para criar uma lista, escolha Nova na barra no topo da página.' : 'To create a list, select New at the menu in top of page.',
+	'Para criar uma lista, escolha Nova na barra no topo da página.' : 'To create a list, select New in the menu at the top of page.',
 	'Não é necessário estar logado para criar uma nova lista, mas se isto ocorrer a lista não poderá ser editada.' : 'You don\'t need to be logged in to create a new list, but if this happens the new list can\'t be edited.',  
 	'Criado por' : 'Created by',
 	'Muito obrigado a' : 'Thanks to',
@@ -83,6 +83,10 @@ _EN = {
 	'Privacidade' : 'Privacy',
 	'Link permanente' : 'Permalink',
 	'Usar um link permanente' : 'Use a permalink', 
+	'Texto após a lista' : 'Text after list', 
+	'Adicionar itens na lista (um por linha)' : 'Add list items (one per line)',
+	'Anexos' : 'Attachments',
+	'Nome' : 'Name',   
 }
 
 
@@ -166,6 +170,10 @@ _PT_BR = {
 	'Privacidade' : 'Privacidade',
 	'Link permanente' : 'Link permanente',
 	'Usar um link permanente' : 'Usar um link permanente', 
+	'Texto após a lista' : 'Texto após a lista', 
+	'Adicionar itens na lista (um por linha)' : 'Adicionar itens na lista (um por linha)',
+	'Anexos' : 'Anexos',  
+	'Nome' : 'Nome', 
 }
 
 

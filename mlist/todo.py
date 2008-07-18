@@ -131,6 +131,7 @@ class NewToDo(BaseListPage, BaseNewPage):
 		self.addItems(todo, in_items)
 		
 		self.handleBackground(form, todo)
+		self.handleAttachments(form, todo)
 		
 		self.redirect(todo.getURL())
 
@@ -254,7 +255,7 @@ class EditToDo(ViewToDo):
 		
 	
 	def post(self, *groups):
-		BaseViewPage.post(self, *groups)
+		done = BaseViewPage.post(self, *groups)
 		if not self.page:
 			return
 		if not self.page.isAuthor():
@@ -269,20 +270,13 @@ class EditToDo(ViewToDo):
 		
 		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
 						  	Field('edit', type='boolean'), \
-						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'), \
-						    Field('delete_bkg', type='boolean'))
+						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
-		if form.delete_bkg:
-			if self.page.background:
-				if self.page.background.file:
-					self.page.background.file.delete()
-				self.page.background.delete()
-				self.page.background = None
-				self.page.put()
+		if done:
 			form.bkg = self.page.background
 			self.renderForm(form)
 			return
-	
+		
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 
@@ -299,6 +293,7 @@ class EditToDo(ViewToDo):
 		self.addItems(self.page, self.getItemNames(form.items))
 	
 		self.handleBackground(form)
+		self.handleAttachments(form)
 		
 		self.redirect(self.page.getURL())
 

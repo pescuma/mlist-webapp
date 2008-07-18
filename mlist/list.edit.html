@@ -12,8 +12,13 @@
 				<h2 class="alt"><textarea name="text" id="text" rows="4" class="alt" style="font-size: 1em; width: 100%">{{ form.text|escape }}</textarea></h2>
 			
 				<span class="large">
-					Adicionar itens na lista (um por linha):<br>
-					<textarea name="items" id="items" rows="5" cols="40" style="font-size: 1em; width: 100%">{{ form.items|escape }}</textarea>
+					{% trans "Adicionar itens na lista (um por linha)" %}:<br />
+					<textarea name="items" id="items" rows="5" cols="40" style="width: 100%">{{ form.items|escape }}</textarea>
+					
+					<br />
+					
+					{% trans "Texto após a lista" %}:<br />
+					<textarea name="text_after" id="text_after" rows="4" cols="40" style="width: 100%">{{ form.text_after|escape }}</textarea>
 					
 					<br />
 					<br />

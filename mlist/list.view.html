@@ -12,6 +12,12 @@
 
 	{% include "list.items.html" %}
 	
+	{% if page.textAfter %}
+		<br />
+		<br />
+		<span class="large">{{ page.textAfter|wiki }}</span>
+	{% endif %}
+	
 	{% include "comments.html" %}
 	
 {% endblock %}

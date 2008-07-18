@@ -10,6 +10,9 @@ function gmaps_trim(txt)
 
 function gmaps_failed(el, address, text)
 {
+	if (text == '')
+		text = address
+
 	if (el.innerText)
 		el.innerText = text;
 	else
