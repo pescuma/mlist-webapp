@@ -86,7 +86,10 @@ _EN = {
 	'Texto após a lista' : 'Text after list', 
 	'Adicionar itens na lista (um por linha)' : 'Add list items (one per line)',
 	'Anexos' : 'Attachments',
-	'Nome' : 'Name',   
+	'Nome' : 'Name',
+	'URL' : 'URL',
+	'(opicional)' : '(opitional)',    
+	'Apenas usuários logados podem ver suas páginas' : 'Only logged users can see their pages', 
 }
 
 
@@ -173,7 +176,10 @@ _PT_BR = {
 	'Texto após a lista' : 'Texto após a lista', 
 	'Adicionar itens na lista (um por linha)' : 'Adicionar itens na lista (um por linha)',
 	'Anexos' : 'Anexos',  
-	'Nome' : 'Nome', 
+	'Nome' : 'Nome',
+	'URL' : 'URL',
+	'(opicional)' : '(opicional)',  
+	'Apenas usuários logados podem ver suas páginas' : 'Apenas usuários logados podem ver suas páginas', 
 }
 
 

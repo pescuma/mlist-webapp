@@ -10,6 +10,7 @@ from recaptcha.client import captcha
 from todo import *
 from trans import *
 from wiki import *
+from page import *
 import cgi
 import datetime
 import os
@@ -74,6 +75,14 @@ class NewPage(BaseNewPage):
 class ViewPage(BasePage):
 	URL = '/(.+)'
 	
+	def loadByURL(self, url):
+		page = Page.loadByURL(url)
+		
+		if page and not page.isAuthor() and page.private:
+			page = None
+		
+		return page
+	
 	def load(self, id):
 		page = Page.load(id)
 		
@@ -85,16 +94,38 @@ class ViewPage(BasePage):
 	def get(self, *groups):
 		BasePage.get(self)
 		
-		page = self.load(groups[0])
-		if not page:
-			self.error(404)
-			return
+		name = groups[0]
 		
-		self.redirect('/' + page.type + '/' + page.id())
+		try:
+			page = self.loadByURL('/' + name)
+			if not page:
+				if name.find('/') < 0:
+						page = self.load(name)
+		except:
+			page = None
+			
+		if page:
+			if page.type == 'list':
+				view = ViewList()
+				view.initialize(self.request, self.response)
+				view.get(page.id())
+				return
+			if page.type == 'wiki':
+				view = ViewWiki()
+				view.initialize(self.request, self.response)
+				view.get(page.id())
+				return
+			if page.type == 'todo':
+				view = ViewToDo()
+				view.initialize(self.request, self.response)
+				view.get(page.id())
+				return
+		
+		self.error(404)
 
 		
 class EditPage(BasePage):
-	URL = '/edit/(.+)'
+	URL = '/edit/([^/]+)'
 	
 	def load(self, id):
 		page = Page.load(id)
@@ -162,8 +193,8 @@ class MListAttachementLinkHandler:
 		
 		if self._isFlash(attach):
 			return u'<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="' + \
-		 	   	   str(attach.width) + u'" height="' + str(attach.height) + u'"' + cls + u'><param name="movie" value="' + url + u'"><param name="quality" value="high"><param name="play" value="true">' + \
-		 	   	   u'<embed src="' + url + u'" quality="high" width="' + str(attach.width) + u'" height="' + str(attach.height) + u'" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">' + \
+		 	   	   str(attach.width) + u'" height="' + str(attach.height) + u'"' + cls + u'><param name="movie" value="' + url + u'" /><param name="quality" value="high" /><param name="wmode" value="transparent" />' + \
+		 	   	   u'<embed src="' + url + u'" quality="high" width="' + str(attach.width) + u'" height="' + str(attach.height) + u'" type="application/x-shockwave-flash" wmode="transparent" pluginspage="http://www.macromedia.com/go/getflashplayer">' + \
 		 	   	   u'</embed></object>'
 
 		return u'<a href="' + url + u'"' + cls + '>' + text + '</a>'
@@ -174,6 +205,44 @@ class MListAttachementLinkHandler:
 	def _isFlash(self, attach):
 		return attach.contentType == 'application/x-shockwave-flash' 
 
+
+def _loadByURL(url):
+	page = MList.gql('WHERE url = :1', url).get()
+	if page:
+		return page
+	
+	page = Wiki.gql('WHERE url = :1', url).get()
+	if page:
+		return page
+	
+	page = ToDo.gql('WHERE url = :1', url).get()
+	if page:
+		return page
+	
+	return None
+
+def _existByURL(url):
+	if MList.gql('WHERE url = :1 LIMIT 1', url).count() > 0:
+		return True
+	if Wiki.gql('WHERE url = :1 LIMIT 1', url).count() > 0:
+		return True
+	if ToDo.gql('WHERE url = :1 LIMIT 1', url).count() > 0:
+		return True
+	return False
+
+def _countByURL(url):
+	count = MList.gql('WHERE url = :1 LIMIT 2', url).count()
+	if count > 1:
+		return count
+	count += Wiki.gql('WHERE url = :1 LIMIT 2', url).count()
+	if count > 1:
+		return count
+	count += ToDo.gql('WHERE url = :1 LIMIT 2', url).count()
+	return count
+
+Page.loadByURL = staticmethod(_loadByURL) 
+Page.existByURL = staticmethod(_existByURL) 
+Page.countByURL = staticmethod(_countByURL) 
 		
 
 application = webapp.WSGIApplication([

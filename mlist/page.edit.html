@@ -1,9 +1,10 @@
-{% trans "Privacidade" %}:<br />
+{% trans "Outras opções" %}:<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="private" {% if form.private %}checked{% endif %} /> {% trans "Página privada" %} <i>{% trans "(apenas o criador pode vê-la)" %}</i><br />
+&nbsp;&nbsp;&nbsp;&nbsp;{% trans "URL" %}: <input name="url" id="url" size="40" value="{{ form.url|escape }}" /> <i>{% trans "(opicional)" %}</i><br />
 
 <br />
 
-{% trans "Imagem de fundo" %}: {% if form.bkg %}<a href="{{ form.bkg.getURL }}">{{ form.bkg.file.name|escape }}</a> <input type="hidden" name="delete_bkg" id="delete_bkg" value=""><input type="image" src="/icons/delete.png" onclick="javascript: document.getElementById('delete_bkg').value='true';" />{% endif %}<br />
+{% trans "Imagem de fundo" %}: {% if form.bkg %}<a href="{{ form.bkg.getURL }}">{{ form.bkg.file.name|escape }}</a> <input type="hidden" name="delete_bkg" id="delete_bkg" value=""><input type="image" src="/icons/delete.gif" onclick="javascript: document.getElementById('delete_bkg').value='true';" />{% endif %}<br />
 &nbsp;&nbsp;&nbsp;&nbsp;{% trans "Mudar para" %}: <input type="file" name="bkg_file" size="30" /><br />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="bkg_static" {% if form.bkg_static %}checked{% endif %} /> {% trans "Estática" %} <i>{% trans "(a imagem não se meche com a página)" %}</i><br />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="bkg_repeat" {% if form.bkg_repeat %}checked{% endif %} /> {% trans "Repetida" %}<br />
@@ -13,7 +14,7 @@
 {% trans "Anexos" %}: <br />
 {% for attach in page.attachments %}
 {%   ifequal attach.type 1 %}
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ attach.getURL }}">{{ attach.getName|escape }}</a> <input type="hidden" name="delete_attach" id="delete_attach" value=""><input type="image" src="/icons/delete.png" onclick="javascript: document.getElementById('delete_attach').value='{{ attach.id }}';" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ attach.getURL }}">{{ attach.getName|escape }}</a> <input type="hidden" name="delete_attach" id="delete_attach" value=""><input type="image" src="/icons/delete.gif" onclick="javascript: document.getElementById('delete_attach').value='{{ attach.id }}';" /><br />
 {%   endifequal %}
 {% endfor %}
 &nbsp;&nbsp;&nbsp;&nbsp;{% trans "Adicionar" %}:<br />

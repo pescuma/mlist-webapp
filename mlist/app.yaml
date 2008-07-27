@@ -17,7 +17,8 @@ handlers:
 - url: /favicon.ico
   static_files: icons/favicon.ico
   upload: icons/favicon.ico
-     
+  mime_type: image/x-icon
+
 - url: /robots.txt
   static_files: robots.txt
   upload: robots.txt

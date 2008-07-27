@@ -110,6 +110,8 @@ class NewToDo(BaseListPage, BaseNewPage):
 		
 		in_items = self.getItemNames(form.items)
 		
+		self.validateURL(form)
+		
 		if len(in_items) <= 0:
 			self.err(t('A lista de tarefas não pode estar em branco'))
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
@@ -130,6 +132,7 @@ class NewToDo(BaseListPage, BaseNewPage):
 		
 		self.addItems(todo, in_items)
 		
+		self.handleURL(form, todo)
 		self.handleBackground(form, todo)
 		self.handleAttachments(form, todo)
 		
@@ -137,7 +140,7 @@ class NewToDo(BaseListPage, BaseNewPage):
 
 
 class ViewToDo(BaseListPage, BaseViewPage):
-	URL = '/todo/(.+)'
+	URL = '/todo/([^/]+)'
 	TYPE = ToDo
 	
 	def show(self):
@@ -228,7 +231,7 @@ class ViewToDo(BaseListPage, BaseViewPage):
 
 
 class EditToDo(ViewToDo):
-	URL = '/todo/edit/(.+)'
+	URL = '/todo/edit/([^/]+)'
 	
 	def renderForm(self, form):
 		self.left_menus.insert(0, Menu(t('Cancel'), '/todo/' + self.page.id()))
@@ -277,6 +280,8 @@ class EditToDo(ViewToDo):
 			self.renderForm(form)
 			return
 		
+		self.validateURL(form)
+		
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 
@@ -291,7 +296,8 @@ class EditToDo(ViewToDo):
 		self.page.put()
 		
 		self.addItems(self.page, self.getItemNames(form.items))
-	
+		
+		self.handleURL(form)
 		self.handleBackground(form)
 		self.handleAttachments(form)
 		

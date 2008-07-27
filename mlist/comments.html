@@ -10,7 +10,7 @@
 		<div style="color: #666; margin:0pt 0pt 0.5em 0pt">
 			{% trans "Comentário por" %} {{ comment.author|nick }} {% trans "em" %} {{ comment.date|date:"d/m/Y g:i a" }} 
 			{% if page.isAuthor or comment.isAuthor %}
-				<span style="margin-left:40px;"><form method="post" style="display: inline;"><input type="hidden" name="removeCommentId" value="{{ comment.id }}" /><input type="image" src="/icons/delete.png" /></form></span>
+				<span style="margin-left:40px;"><form method="post" style="display: inline;"><input type="hidden" name="removeCommentId" value="{{ comment.id }}" /><input type="image" src="/icons/delete.gif" /></form></span>
 			{% endif %}
 		</div>
 		<div>

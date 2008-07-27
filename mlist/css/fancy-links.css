@@ -1,7 +1,7 @@
 /* To get icons on the right side of links, replace all occurences of `left' through `right' */
 
 /* 
-a[href^="http:"],a[href^="https:"] {background: url(/icons/files/link.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href^="http:"],a[href^="https:"] {background: url(/icons/files/link.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
 a[href^="http://mlist.appspot.com"] {background-image:none !important; padding-left:0px !important;}
 */
 
@@ -9,29 +9,29 @@ a[href^="http://mlist.appspot.com"] {background-image:none !important; padding-l
 .exempt {background-image:none !important; padding:0px !important;}
 
 /* Use whenever you want to define an external link explicitly */
-.external {background: url(/icons/files/link.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+.external {background: url(/icons/files/link.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
 
-a[href^="mailto:"] {background: url(/icons/files/email.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href^="mailto:"] {background: url(/icons/files/email.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
 
-a[href^="aim:"],a[href^="icq:"],a[href^="msn:"],a[href^="jabber:"] {background: url(/icons/files/im.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href^="aim:"],a[href^="icq:"],a[href^="msn:"],a[href^="jabber:"] {background: url(/icons/files/im.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
 
-a[href^="http://maps.google.com"] {background: url(/icons/files/map.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href^="http://maps.google.com"] {background: url(/icons/files/map.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
 
-a[href$=".rss"], a[href$=".rdf"] {background: url(/icons/files/feed.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".jpg"],a[href$=".jpeg"],a[href$=".gif"],a[href$=".png"] {background: url(/icons/files/img.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".pdf"] {background: url(/icons/files/pdf.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".xls"] {background: url(/icons/files/xls.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".doc"] {background: url(/icons/files/doc.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".c"] {background: url(/icons/files/c.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".cpp"] {background: url(/icons/files/cpp.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".h"] {background: url(/icons/files/h.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".php"] {background: url(/icons/files/php.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".txt"] {background: url(/icons/files/txt.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".zip"],a[href$=".tar"]a[href$=".gz"],a[href$=".tgz"] {background: url(/icons/files/zip.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".mp3"],a[href$=".ogg"] {background: url(/icons/files/mp3.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".avi"] {background: url(/icons/files/avi.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".vcard"] {background: url(/icons/files/vcard.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
-a[href$=".swf"] {background: url(/icons/files/swf.png) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".rss"], a[href$=".rdf"] {background: url(/icons/files/feed.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".jpg"],a[href$=".jpeg"],a[href$=".gif"],a[href$=".png"] {background: url(/icons/files/img.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".pdf"] {background: url(/icons/files/pdf.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".xls"] {background: url(/icons/files/xls.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".doc"] {background: url(/icons/files/doc.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".c"] {background: url(/icons/files/c.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".cpp"] {background: url(/icons/files/cpp.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".h"] {background: url(/icons/files/h.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".php"] {background: url(/icons/files/php.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".txt"] {background: url(/icons/files/txt.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".zip"],a[href$=".tar"]a[href$=".gz"],a[href$=".tgz"] {background: url(/icons/files/zip.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".mp3"],a[href$=".ogg"] {background: url(/icons/files/mp3.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".avi"] {background: url(/icons/files/avi.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".vcard"] {background: url(/icons/files/vcard.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
+a[href$=".swf"] {background: url(/icons/files/swf.gif) no-repeat left top; padding-left:20px; padding-bottom:5px;}
 
 
 .header a {background-image:none !important; padding:0px !important;}

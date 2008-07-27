@@ -1,5 +1,6 @@
 {% trans "Outras opções" %}:<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="private" {% if form.private %}checked{% endif %} /> {% trans "Página privada" %} <i>{% trans "(apenas o criador pode vê-la)" %}</i><br />
+&nbsp;&nbsp;&nbsp;&nbsp;{% trans "URL" %}: <input name="url" id="url" size="40" value="{{ form.url|escape }}" /> <i>{% trans "(opicional)" %}</i><br />
 
 <br />
 

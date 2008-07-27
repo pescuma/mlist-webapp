@@ -46,7 +46,9 @@ class NewWiki(BaseNewPage):
 		
 		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
 						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
-		
+				
+		self.validateURL(form)
+
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 		
@@ -63,6 +65,7 @@ class NewWiki(BaseNewPage):
 		wiki.author = users.get_current_user()
 		wiki.put()
 		
+		self.handleURL(form, wiki)
 		self.handleBackground(form, wiki)
 		self.handleAttachments(form, wiki)
 		
@@ -70,7 +73,7 @@ class NewWiki(BaseNewPage):
 
 
 class ViewWiki(BaseViewPage):
-	URL = '/wiki/(.+)'
+	URL = '/wiki/([^/]+)'
 	TYPE = Wiki
 	
 	def show(self):
@@ -96,7 +99,7 @@ class ViewWiki(BaseViewPage):
 
 
 class EditWiki(ViewWiki):
-	URL = '/wiki/edit/(.+)'
+	URL = '/wiki/edit/([^/]+)'
 	
 	def renderForm(self, form):
 		self.left_menus.insert(0, Menu(t('Cancel'), '/wiki/' + self.page.id()))
@@ -141,6 +144,8 @@ class EditWiki(ViewWiki):
 			self.renderForm(form)
 			return
 		
+		self.validateURL(form)
+		
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 
@@ -153,7 +158,8 @@ class EditWiki(ViewWiki):
 		self.page.text = form.text
 		self.page.private = form.private
 		self.page.put()
-	
+
+		self.handleURL(form)
 		self.handleBackground(form)
 		self.handleAttachments(form)
 

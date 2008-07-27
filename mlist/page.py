@@ -54,6 +54,7 @@ class Page(db.Model):
 	dateCreated = db.DateTimeProperty(auto_now_add=True)
 	private = db.BooleanProperty()
 	background = db.Reference(Background)
+	url = db.StringProperty(multiline=False)
 	
 	def __comments(self):
 		return list(self.comment_set.order('date'))
@@ -119,9 +120,7 @@ class Attachment(File):
 	
 	def getURL(self):
 		return '/file/' + self.page.id() + '/' + self.name
-
-
-
+	
 
 class BaseNewPage(BasePage):
 	def createMenus(self):
@@ -199,6 +198,26 @@ class BaseNewPage(BasePage):
 			file.type = Attachment.NORMAL
 			file.put()
 
+	def validateURL(self, form):
+		if hasattr(form, 'url') and form.url:
+			if not form.url.startswith('/'):
+				form.url = '/' + form.url
+			
+			if Page.existByURL(form.url):
+				self.err(t('Esta url já está sendo usada'))
+
+	def handleURL(self, form, page):
+		if hasattr(form, 'url'):
+			if Page.existByURL(form.url):
+				return
+			
+			page.url = form.url
+			page.put()
+		
+			if Page.countByURL(form.url) > 1:
+				page.url = None
+				page.put()
+			
 
 class BaseViewPage(BasePage):
 	TYPE = Page
@@ -277,8 +296,6 @@ class BaseViewPage(BasePage):
 		
 		return False
 
-	
-		
 	def render(self, html, **keywords):
 		keywords['page'] = self.page
 		BasePage.render(self, html, **keywords)
@@ -339,10 +356,30 @@ class BaseViewPage(BasePage):
 			file.type = Attachment.NORMAL
 			file.put()
 
+	def validateURL(self, form):
+		if hasattr(form, 'url') and form.url and form.url != self.page.url:
+			if not form.url.startswith('/'):
+				form.url = '/' + form.url
+			
+			if Page.existByURL(form.url):
+				self.err(t('Esta url já está sendo usada'))
+
+	def handleURL(self, form):
+		if hasattr(form, 'url') and form.url and form.url != self.page.url:
+			if Page.existByURL(form.url):
+				return
+			
+			self.page.url = form.url
+			self.page.put()
+		
+			if Page.countByURL(form.url) > 1:
+				self.page.url = None
+				self.page.put()
+
 
 
 class AttachmentHandler(webapp.RequestHandler):
-	URL = '/file/(.+)/(.+)'
+	URL = '/file/([^/]+)/([^/]+)'
 
 	def load(self, id):
 		page = Page.load(id)

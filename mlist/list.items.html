@@ -14,20 +14,20 @@
 				<span style="margin-left:40px;"> 
 					{% if item.bought %}
 						{% if page.isAuthor %}
-							<form method="post" style="display: inline;"><input type="hidden" name="unbought" value="{{ item.id }}"><input type="image" src="/icons/basket_delete.png" /></form> 
+							<form method="post" style="display: inline;"><input type="hidden" name="unbought" value="{{ item.id }}"><input type="image" src="/icons/basket_delete.gif" /></form> 
 						{% else %}
 							{% if item.boughtBy %}
 							{% ifequal item.boughtBy user %}
-								<form method="post" style="display: inline;"><input type="hidden" name="unbought" value="{{ item.id }}"><input type="image" src="/icons/basket_delete.png" /></form> 
+								<form method="post" style="display: inline;"><input type="hidden" name="unbought" value="{{ item.id }}"><input type="image" src="/icons/basket_delete.gif" /></form> 
 							{% endifequal %}
 							{% endif %}
 						{% endif %}
 					{% else %}
-						<form method="post" style="display: inline;"><input type="hidden" name="bought" value="{{ item.id }}"><input type="image" src="/icons/basket_add.png" /></form> 
+						<form method="post" style="display: inline;"><input type="hidden" name="bought" value="{{ item.id }}"><input type="image" src="/icons/basket_add.gif" /></form> 
 					{% endif %}
 					
 					{% if page.isAuthor %}
-						<form method="post" style="display: inline; margin-left:5px;"><input type="hidden" name="delete" value="{{ item.id }}"><input type="image" src="/icons/delete.png" /></form> 
+						<form method="post" style="display: inline; margin-left:5px;"><input type="hidden" name="delete" value="{{ item.id }}"><input type="image" src="/icons/delete.gif" /></form> 
 					{% endif %}
 				</span>
 			</li>

@@ -110,6 +110,8 @@ class NewList(BaseListPage, BaseNewPage):
 		
 		in_items = self.getItemNames(form.items)
 		
+		self.validateURL(form)
+		
 		if len(in_items) <= 0:
 			self.err(t('A lista de itens não pode estar em branco'))
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
@@ -131,6 +133,7 @@ class NewList(BaseListPage, BaseNewPage):
 		
 		self.addItems(mlist, in_items)
 		
+		self.handleURL(form, mlist)
 		self.handleBackground(form, mlist)
 		self.handleAttachments(form, mlist)
 		
@@ -138,7 +141,7 @@ class NewList(BaseListPage, BaseNewPage):
 
 
 class ViewList(BaseListPage, BaseViewPage):
-	URL = '/list/(.+)'
+	URL = '/list/([^/]+)'
 	TYPE = MList
 	
 	def show(self):
@@ -224,7 +227,7 @@ class ViewList(BaseListPage, BaseViewPage):
 
 
 class EditList(ViewList):
-	URL = '/list/edit/(.+)'
+	URL = '/list/edit/([^/]+)'
 	
 	def renderForm(self, form):
 		self.left_menus.insert(0, Menu(t('Cancel'), '/list/' + self.page.id()))
@@ -242,6 +245,10 @@ class EditList(ViewList):
 		form.text = self.page.text
 		form.text_after = self.page.textAfter
 		form.private = self.page.private
+		form.url = self.page.url
+		
+		if not form.url:
+			form.url = ''
 				
 		if not form.text_after:
 			form.text_after = ''
@@ -277,6 +284,8 @@ class EditList(ViewList):
 			self.renderForm(form)
 			return
 		
+		self.validateURL(form)
+				
 		if form.bkg_file and form.bkg_file.content_type not in ('image/gif', 'image/png', 'image/jpeg'):
 			self.err(t('A Imagem de Fundo deve ser um arqivo do tipo GIF, PNG ou JPEG'))
 
@@ -293,6 +302,7 @@ class EditList(ViewList):
 		
 		self.addItems(self.page, self.getItemNames(form.items))
 	
+		self.handleURL(form)
 		self.handleBackground(form)
 		self.handleAttachments(form)
 		

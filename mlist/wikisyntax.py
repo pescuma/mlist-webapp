@@ -366,7 +366,7 @@ class LinkFormater:
 			return None
 		
 		parser.eat(i)
-		return output
+		return output, (modifiers != 0)
 
 
 class CodePretiffyTag:
@@ -436,8 +436,18 @@ class TagFormater:
 			if tag.canHandle(name):
 				return tag
 		return None
-		
+
+class ParagraphDelimiter:
+	text = u''
+	begin = u''
+	end = u''
 	
+	def __init__(self, text, begin, end):
+		self.text = text
+		self.begin = begin
+		self.end = end
+
+
 class WikiParser:
 	_i = 0
 	_text = u''
@@ -449,6 +459,7 @@ class WikiParser:
 	_lastNumEnters = 0
 	_needSpace = False
 	_inParagraph = False
+	_paragraphEnd = ''
 	_formaters = [ LinkFormater(), \
 				   TagFormater(), \
 				   Formater(u'/', u'<i>', u'</i>'), \
@@ -463,6 +474,11 @@ class WikiParser:
 	_urlFormaters = [ ImageURLFormater(), AnimotoURLFormater(), PicasaURLFormater(), \
 					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser(), \
 					  VimeoURLFormater(), MapLink() ]
+	_paragraphDelimiters = [ ParagraphDelimiter(u'======', u'<h6>', u'</h6>'), \
+						  	 ParagraphDelimiter(u'=====', u'<h5>', u'</h5>'), \
+						  	 ParagraphDelimiter(u'====', u'<h4>', u'</h4>'), \
+						  	 ParagraphDelimiter(u'===', u'<h3>', u'</h3>'), \
+						     ParagraphDelimiter(u'', u'<p>', u'</p>') ]
 	
 	
 	def registerURLFormater(urlFormater):
@@ -537,7 +553,13 @@ class WikiParser:
 			brs = (self._lastNumEnters - 2) / 2
 			for i in range(brs):
 				ret += u'<br />'
-			ret += u'<p>'
+			self._paragraphEnd = ''
+			for delimiter in self._paragraphDelimiters:
+				if self._word.startswith(delimiter.text):
+					ret += delimiter.begin
+					self._paragraphEnd = delimiter.end 
+					self._word = self._word[len(delimiter.text):]
+					break
 		self._inParagraph = True
 		return ret
 
@@ -548,7 +570,7 @@ class WikiParser:
 		if self._inParagraph:
 			for f in self._formaters:
 				ret += f.finish()
-			ret += u'</p>'
+			ret += self._paragraphEnd
 		self._inParagraph = False
 		return ret
 		
@@ -643,11 +665,15 @@ class WikiParser:
 				self._needSpace = True
 				continue
 
+			formOutsideParagraph = False
 			form = None
 			for f in self._formaters:
 				form = f.handle(self)
 				if form:
-					break
+					if hasattr(form, '__iter__'):
+						form, formOutsideParagraph = form
+					if form:
+						break
 			
 			char = None
 			if not form:
@@ -656,7 +682,7 @@ class WikiParser:
 				self.eat(1)
 			
 			if form:
-				self.appendWord(True)
+				self.appendWord(not formOutsideParagraph)
 				self._out += form
 			
 			elif not char:

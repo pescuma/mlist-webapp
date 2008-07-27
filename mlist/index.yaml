@@ -10,58 +10,58 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 438 times in query history.
+# Used 33 times in query history.
 - kind: Attachment
   properties:
   - name: page
   - name: date
 
-# Used 958 times in query history.
+# Used 26 times in query history.
 - kind: Comment
   properties:
   - name: page
   - name: date
 
-# Used 38 times in query history.
+# Unused in query history -- copied from input.
 - kind: Item
   properties:
   - name: mlist
   - name: order
 
-# Used 40 times in query history.
+# Unused in query history -- copied from input.
 - kind: MList
   properties:
   - name: author
   - name: dateCreated
     direction: desc
 
-# Used 859 times in query history.
+# Used 23 times in query history.
 - kind: MListItem
   properties:
   - name: mlist
   - name: order
 
-# Used 2 times in query history.
+# Unused in query history -- copied from input.
 - kind: Page
   properties:
   - name: author
   - name: dateCreated
     direction: desc
 
-# Used 4 times in query history.
+# Unused in query history -- copied from input.
 - kind: ToDo
   properties:
   - name: author
   - name: dateCreated
     direction: desc
 
-# Used 426 times in query history.
+# Unused in query history -- copied from input.
 - kind: ToDoItem
   properties:
   - name: todo
   - name: order
 
-# Used 30 times in query history.
+# Unused in query history -- copied from input.
 - kind: Wiki
   properties:
   - name: author
