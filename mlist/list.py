@@ -24,9 +24,16 @@ import wsgiref.handlers
 class MList(Page):
 	type = 'list'
 	textAfter = db.TextProperty()
+	sortByText = db.BooleanProperty()
 	
 	def __items(self):
-		return list(self.mlistitem_set.order('order'))
+		if self.sortByText:
+			tupleList = [(item.text.lower(), i, item) for i, item in enumerate(list(self.mlistitem_set))]
+			tupleList.sort()
+			return [item[2] for item in tupleList]
+#			return list(self.mlistitem_set.order('text'))
+		else:
+			return list(self.mlistitem_set.order('order'))
 	items = property(fget=__items)
 	
 	def getItemById(self, toFind):
@@ -106,6 +113,7 @@ class NewList(BaseListPage, BaseNewPage):
 		self.title = t('Nova lista de compras')
 		
 		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
+						  	Field('sort_by_text', type='boolean'), \
 						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
 		in_items = self.getItemNames(form.items)
@@ -128,6 +136,7 @@ class NewList(BaseListPage, BaseNewPage):
 		mlist.text = form.text
 		mlist.textAfter = form.text_after
 		mlist.private = form.private
+		mlist.sortByText = form.sort_by_text
 		mlist.author = users.get_current_user()
 		mlist.put()
 		
@@ -244,6 +253,7 @@ class EditList(ViewList):
 		form.title = self.page.title
 		form.text = self.page.text
 		form.text_after = self.page.textAfter
+		form.sort_by_text = self.page.sortByText
 		form.private = self.page.private
 		form.url = self.page.url
 		
@@ -276,7 +286,7 @@ class EditList(ViewList):
 			return
 		
 		form = self.getForm(Field('title', desc=t('O título'), max=500, required=True), Field('private', type='boolean'), \
-						  	Field('edit', type='boolean'), \
+						  	Field('sort_by_text', type='boolean'), Field('edit', type='boolean'), \
 						    Field('bkg_file', type='file'), Field('bkg_static', type='boolean'), Field('bkg_repeat', type='boolean'))
 		
 		if done:
@@ -298,6 +308,7 @@ class EditList(ViewList):
 		self.page.text = form.text
 		self.page.textAfter = form.text_after
 		self.page.private = form.private
+		self.page.sortByText = form.sort_by_text
 		self.page.put()
 		
 		self.addItems(self.page, self.getItemNames(form.items))

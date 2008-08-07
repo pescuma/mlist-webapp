@@ -89,7 +89,8 @@ _EN = {
 	'Nome' : 'Name',
 	'URL' : 'URL',
 	'(opicional)' : '(opitional)',    
-	'Apenas usuários logados podem ver suas páginas' : 'Only logged users can see their pages', 
+	'Apenas usuários logados podem ver suas páginas' : 'Only logged users can see their pages',
+	'Ordernar lista por texto' : 'Sort list by text',  
 }
 
 
@@ -179,7 +180,8 @@ _PT_BR = {
 	'Nome' : 'Nome',
 	'URL' : 'URL',
 	'(opicional)' : '(opicional)',  
-	'Apenas usuários logados podem ver suas páginas' : 'Apenas usuários logados podem ver suas páginas', 
+	'Apenas usuários logados podem ver suas páginas' : 'Apenas usuários logados podem ver suas páginas',
+	'Ordernar lista por texto' : 'Ordernar lista por texto',  
 }
 
 

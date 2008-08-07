@@ -6,6 +6,8 @@
 		<tr>
 			<td>
 				<form action="" method="post" style="margin-bottom:20px" enctype="multipart/form-data" name="mainForm" id="mainForm">
+				<input type="image" border="0" name="refresh" width="1px" height="1px" src="/icons/empty.gif" />
+				
 				<h1><input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em; width: 100%" /></h1>
 				<hr>
 				<br>
@@ -21,6 +23,10 @@
 					<textarea name="text_after" id="text_after" rows="4" cols="40" style="width: 100%">{{ form.text_after|escape }}</textarea>
 					
 					<br />
+					
+					<input type="checkbox" name="sort_by_text" {% if form.sort_by_text %}checked{% endif %} /> {% trans "Ordernar lista por texto" %}<br />
+					
+					<br />
 					<br />
 					
 					{% include "page.edit.html" %}
@@ -29,7 +35,7 @@
 				</span>
 			
 				<input type="hidden" name="edit" value="1">
-				<input type="submit" value="{% trans 'Salvar' %}" />
+				<input type="submit" name="Save" value="{% trans 'Salvar' %}" />
 				</form>
 				
 				<br />

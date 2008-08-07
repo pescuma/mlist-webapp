@@ -6,6 +6,8 @@
 		<tr>
 			<td>
 				<form action="" method="post" style="margin-bottom:60px" enctype="multipart/form-data" name="mainForm" id="mainForm">
+				<input type="image" border="0" name="refresh" width="1px" height="1px" src="/icons/empty.gif" />
+				
 				<h1>{% trans "Nome da lista" %}: <input type="text" name="title" id="title" value="{{ form.title|escape }}" style="font-size: 1em;" /></h1>
 				<hr>
 				<br>
@@ -22,7 +24,7 @@
 					
 				</span>
 				
-				<input type="submit" value="{% trans 'Salvar' %}" />
+				<input type="submit" name="Save" value="{% trans 'Salvar' %}" />
 				</form>
 			</td>
 			<td style="width:200px; vertical-align:top;">

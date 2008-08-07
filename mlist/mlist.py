@@ -123,6 +123,38 @@ class ViewPage(BasePage):
 		
 		self.error(404)
 
+	def post(self, *groups):
+		BasePage.post(self)
+		
+		name = groups[0]
+		
+		try:
+			page = self.loadByURL('/' + name)
+			if not page:
+				if name.find('/') < 0:
+						page = self.load(name)
+		except:
+			page = None
+			
+		if page:
+			if page.type == 'list':
+				view = ViewList()
+				view.initialize(self.request, self.response)
+				view.post(page.id(), *groups)
+				return
+			if page.type == 'wiki':
+				view = ViewWiki()
+				view.initialize(self.request, self.response)
+				view.post(page.id(), *groups)
+				return
+			if page.type == 'todo':
+				view = ViewToDo()
+				view.initialize(self.request, self.response)
+				view.post(page.id(), *groups)
+				return
+		
+		self.error(404)
+
 		
 class EditPage(BasePage):
 	URL = '/edit/([^/]+)'
