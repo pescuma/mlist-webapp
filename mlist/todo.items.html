@@ -3,41 +3,49 @@
 	<form style="margin: 0pt" method="post" style="display: inline;" name="undo_form" id="undo_form"><input type="hidden" name="undo" value=""></form>
 	<form style="margin: 0pt" method="post" style="display: inline;" name="do_form" id="do_form"><input type="hidden" name="done" value=""></form>
 
-	<div class="large" style="margin:0 1.5em;">
+	<div class="large" style="width:100%;margin:0 1.5em;">
 		{% for item in page.items %}
-			{% if item.done %}
-				{% if page.isAuthor %}
-					<input type="checkbox" {% if item.done %}checked{% endif %} onclick="javascript: {% if item.done %}document.forms['undo_form'].undo.value='{{ item.id }}';document.forms['undo_form'].submit();{% else %}document.forms['do_form'].done.value='{{ item.id }}';document.forms['do_form'].submit();{% endif %} return false;" />
-				{% else %}
-					{% if item.doneBy %}
-					{% ifequal item.doneBy user %}
-						<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: {% if item.done %}document.forms['undo_form'].undo.value='{{ item.id }}';document.forms['undo_form'].submit();{% else %}document.forms['do_form'].done.value='{{ item.id }}';document.forms['do_form'].submit();{% endif %} return false;" />
+			<div style="position:relative;width:100%" onMouseOver="javascript: document.getElementById('icons_{{ item.id }}').style.visibility = 'visible';" onmouseout="javascript: document.getElementById('icons_{{ item.id }}').style.visibility = 'hidden';">
+				{% if item.done %}
+					{% if page.isAuthor %}
+						<input type="checkbox" {% if item.done %}checked{% endif %} onclick="javascript: {% if item.done %}document.forms['undo_form'].undo.value='{{ item.id }}';document.forms['undo_form'].submit();{% else %}document.forms['do_form'].done.value='{{ item.id }}';document.forms['do_form'].submit();{% endif %} return false;" />
 					{% else %}
-						<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: return false;" />
-					{% endifequal %}
-					{% else %}
-						<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: return false;" />
+						{% if item.doneBy %}
+						{% ifequal item.doneBy user %}
+							<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: {% if item.done %}document.forms['undo_form'].undo.value='{{ item.id }}';document.forms['undo_form'].submit();{% else %}document.forms['do_form'].done.value='{{ item.id }}';document.forms['do_form'].submit();{% endif %} return false;" />
+						{% else %}
+							<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: return false;" />
+						{% endifequal %}
+						{% else %}
+							<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: return false;" />
+						{% endif %}
 					{% endif %}
+				{% else %}
+						<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: {% if item.done %}document.forms['undo_form'].undo.value='{{ item.id }}';document.forms['undo_form'].submit();{% else %}document.forms['do_form'].done.value='{{ item.id }}';document.forms['do_form'].submit();{% endif %} return false;" />
 				{% endif %}
-			{% else %}
-					<input type="checkbox" name="doit" {% if item.done %}checked{% endif %} onclick="javascript: {% if item.done %}document.forms['undo_form'].undo.value='{{ item.id }}';document.forms['undo_form'].submit();{% else %}document.forms['do_form'].done.value='{{ item.id }}';document.forms['do_form'].submit();{% endif %} return false;" />
-			{% endif %}
-			
-			{% if item.done %}
-				<span class="quiet" style="text-decoration:line-through;">{{ item.text|wikiSL }}</span> 
-				{% if page.isAuthor %}
-					<span class="small quiet em" style="font-style:italic;">( {{ item.doneBy|nick }} em {{ item.doneDate|date:"d/m/Y g:i a" }} )</span> 
+				
+				{% if item.done %}
+					<span class="quiet" style="text-decoration:line-through;">{{ item.text|wikiSL }}</span> 
+					{% if page.isAuthor %}
+						<span class="small quiet em" style="font-style:italic;">( {{ item.doneBy|nick }} em {{ item.doneDate|date:"d/m/Y g:i a" }} )</span> 
+					{% endif %}
+				{% else %}
+					{{ item.text|wikiSL }}
 				{% endif %}
-			{% else %}
-				{{ item.text|wikiSL }}
-			{% endif %}
-			
-			<span style="margin-left:40px;"> 
-				{% if page.isAuthor %}
-					<form method="post" style="display: inline; margin-left:5px;"><input type="hidden" name="delete" value="{{ item.id }}"><input type="image" src="/icons/delete.gif" /></form> 
-				{% endif %}
-			</span>
-			<br />
+				
+				<span style="margin-left: 40px; position: relative; visibility: hidden;" id="icons_{{ item.id }}" name="icons_{{ item.id }}"> 
+					{% if page.isAuthor %}
+						{% if not forloop.first %}
+							<form method="post" style="display: inline;"><input type="hidden" name="up" value="{{ item.id }}"><input type="image" src="/icons/up.gif" /></form>
+						{% endif %} 
+						{% if not forloop.last %}
+							<form method="post" style="display: inline;"><input type="hidden" name="down" value="{{ item.id }}"><input type="image" src="/icons/down.gif" /></form>
+						{% endif %} 
+						 
+						<form method="post" style="display: inline; margin-left:5px;"><input type="hidden" name="delete" value="{{ item.id }}"><input type="image" src="/icons/delete.gif" /></form> 
+					{% endif %}
+				</span>
+			</div>
 		{% endfor %}
 	</div>
 {% endif %}

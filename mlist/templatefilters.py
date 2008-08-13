@@ -15,7 +15,7 @@ def nick(value):
 	nick = value.nickname()
 	pos = nick.rfind('@')
 	if pos >= 0:
-	  nick = nick[:pos] + '@...'
+	  nick = nick[:pos] + '...'
 	return cgi.escape(nick)
 
 def wiki(value):

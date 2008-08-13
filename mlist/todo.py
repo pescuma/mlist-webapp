@@ -183,7 +183,9 @@ class ViewToDo(BaseListPage, BaseViewPage):
 	def handlePublicChanges(self, todo):
 		form = self.getForm(Field('done', type=ToDoItem), \
 						    Field('undo', type=ToDoItem), \
-						    Field('delete', type=ToDoItem),
+						    Field('delete', type=ToDoItem), \
+						    Field('up'), \
+						    Field('down'), \
 						    strict = True)
 		
 		if form.done:
@@ -214,6 +216,33 @@ class ViewToDo(BaseListPage, BaseViewPage):
 				self.err(t("Apenas o criador da lista pode apagar tarefas"))
 			else:
 				item.delete()
+		
+		if form.up:
+			itemID = form.up
+			last = None
+			for item in todo.items:
+				if item.id() == itemID:
+					if last:
+						tmp = last.order
+						last.order = item.order
+						item.order = tmp
+						last.put()
+						item.put()
+					break
+				last = item
+		
+		if form.down:
+			itemID = form.down
+			last = None
+			for item in todo.items:
+				if last and last.id() == itemID:
+					tmp = last.order
+					last.order = item.order
+					item.order = tmp
+					last.put()
+					item.put()
+					break
+				last = item
 	
 	
 	def post(self, *groups):

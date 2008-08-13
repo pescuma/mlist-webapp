@@ -90,7 +90,8 @@ _EN = {
 	'URL' : 'URL',
 	'(opicional)' : '(opitional)',    
 	'Apenas usuários logados podem ver suas páginas' : 'Only logged users can see their pages',
-	'Ordernar lista por texto' : 'Sort list by text',  
+	'Ordernar lista por texto' : 'Sort list by text',
+	'Esta tarefa já foi realizada por outra pessoa' : 'This task was already done by someone else',  
 }
 
 
@@ -182,6 +183,7 @@ _PT_BR = {
 	'(opicional)' : '(opicional)',  
 	'Apenas usuários logados podem ver suas páginas' : 'Apenas usuários logados podem ver suas páginas',
 	'Ordernar lista por texto' : 'Ordernar lista por texto',  
+	'Esta tarefa já foi realizada por outra pessoa' : 'Esta tarefa já foi realizada por outra pessoa',
 }
 
 
