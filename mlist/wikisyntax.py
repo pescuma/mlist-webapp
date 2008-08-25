@@ -95,6 +95,18 @@ class CleVRURLFormater:
 		return u'<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="386" height="300"><param name="allowScriptAccess" value="never"><param name="movie" value="http://s3.clevr.com/CleVR?xmldomain=http://www.clevr.com/&amp;mov=' + id + u'"><embed src="http://s3.clevr.com/CleVR?xmldomain=http://www.clevr.com/&amp;mov=' + id + u'" width="386" height="300" name="CleVR" allowScriptAccess="never" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></object>'
 
 
+class MagTooURLFormater:
+	_BASE_URLS = [ u'http://www.magtoo.com/tour.do?method=viewMagShow&id=', u'http://magtoo.com/tour.do?method=viewMagShow&id=' ]
+	
+	def handle(self, word):
+		id = _getTextAfter(word, self._BASE_URLS)
+		if not id:
+			return None
+		id = _removeOtherParams(id)
+		# TODO: Other sizes
+		return u'<embed type="application/x-shockwave-flash" src="http://www.magtoo.com/tour.do?method=FlashVarsSender&fl_type=magtooPanorama.swf" width="600" height="360" style="undefined" id="MagToo" name="MagToo" bgcolor="#525252" quality="high" allowScriptAccess="Always" swliveconnect="true" wmode="transparent" flashvars="tempID=' + id + u'&serverURL=http://www.magtoo.com"/>'
+
+
 class YouTubeFormater:
 	_BASE_URLS = [ u'http://youtube.com/watch?v=', u'http://www.youtube.com/watch?v=' ]
 	
@@ -472,7 +484,7 @@ class WikiParser:
 				   Formater(u'++', u'<span class="added">', u'</span>'), \
 				   Formater(u'--', u'<span class="removed">', u'</span>') ]
 	_urlFormaters = [ ImageURLFormater(), AnimotoURLFormater(), PicasaURLFormater(), \
-					  CleVRURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser(), \
+					  CleVRURLFormater(), MagTooURLFormater(), YouTubeFormater(), FlickrFormater(), FlickrFormaterPictoBrowser(), \
 					  VimeoURLFormater(), MapLink() ]
 	_paragraphDelimiters = [ ParagraphDelimiter(u'======', u'<h6>', u'</h6>'), \
 						  	 ParagraphDelimiter(u'=====', u'<h5>', u'</h5>'), \

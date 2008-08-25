@@ -10,13 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 109 times in query history.
+# Used 246 times in query history.
 - kind: Attachment
   properties:
   - name: page
   - name: date
 
-# Used 90 times in query history.
+# Used 292 times in query history.
 - kind: Comment
   properties:
   - name: page
@@ -35,7 +35,7 @@ indexes:
   - name: dateCreated
     direction: desc
 
-# Used 77 times in query history.
+# Used 162 times in query history.
 - kind: MListItem
   properties:
   - name: mlist
@@ -61,7 +61,7 @@ indexes:
   - name: dateCreated
     direction: desc
 
-# Used 39 times in query history.
+# Used 399 times in query history.
 - kind: ToDoItem
   properties:
   - name: todo

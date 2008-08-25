@@ -92,6 +92,7 @@ _EN = {
 	'Apenas usuários logados podem ver suas páginas' : 'Only logged users can see their pages',
 	'Ordernar lista por texto' : 'Sort list by text',
 	'Esta tarefa já foi realizada por outra pessoa' : 'This task was already done by someone else',  
+	'Deseja presentear o item selecionado?' : 'Do you want to mark the selected item as bought?', 
 }
 
 
@@ -184,6 +185,7 @@ _PT_BR = {
 	'Apenas usuários logados podem ver suas páginas' : 'Apenas usuários logados podem ver suas páginas',
 	'Ordernar lista por texto' : 'Ordernar lista por texto',  
 	'Esta tarefa já foi realizada por outra pessoa' : 'Esta tarefa já foi realizada por outra pessoa',
+	'Deseja presentear o item selecionado?' : 'Deseja presentear o item selecionado?', 
 }
 
 

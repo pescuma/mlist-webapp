@@ -1,4 +1,4 @@
-﻿{% if page.items %}
+{% if page.items %}
 	<ul class="large">
 		{% for item in page.items %}
 			<li>
@@ -23,7 +23,7 @@
 							{% endif %}
 						{% endif %}
 					{% else %}
-						<form method="post" style="display: inline;"><input type="hidden" name="bought" value="{{ item.id }}"><input type="image" src="/icons/basket_add.gif" /></form> 
+						<form method="post" style="display: inline;"><input type="hidden" name="bought" value="{{ item.id }}"><input type="image" src="/icons/basket_add.gif" onClick="return window.confirm('{% trans "Deseja presentear o item selecionado?" %}');"/></form> 
 					{% endif %}
 					
 					{% if page.isAuthor %}
